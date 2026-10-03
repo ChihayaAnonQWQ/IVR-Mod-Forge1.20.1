@@ -1,8 +1,6 @@
 package net.hulan.ivr.platform;
 
-import mtr.RegistryClient;
 import net.hulan.ivr.entity.NPCs;
-import net.hulan.ivr.render.NPCSteveRenderer;
 import net.minecraft.world.entity.player.Player;
 
 @SuppressWarnings("unused")
@@ -21,8 +19,4 @@ public class NPCPlatform_1_16_5 extends NPCPlatform {
         registrar.register("fare_adjustments", NPCs.FARE_ADJUSTMENTS);
     }
 
-    public void registerClientRenderers() {
-        RegistryClient.registerEntityRenderer(NPCs.TICKETS.get(), NPCSteveRenderer::new);
-        RegistryClient.registerEntityRenderer(NPCs.FARE_ADJUSTMENTS.get(), NPCSteveRenderer::new);
-    }
 }

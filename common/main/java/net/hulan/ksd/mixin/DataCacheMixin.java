@@ -23,19 +23,10 @@ public class DataCacheMixin {
 
     @Inject(method = "mapSavedRailIdToStation", at = @At(value = "HEAD"), cancellable = true, remap = false)
     private static <U extends SavedRailBase, V extends AreaBase> void areaIdToSavedRails(Map<Long, V> map, Set<U> savedRails, Set<V> areas, CallbackInfo ci) {
+        map.clear();
         savedRails.forEach((savedRail) -> {
             BlockPos pos = savedRail.getMidPos();
             if (savedRail instanceof Platform) {
-                if (map.isEmpty()) {
-                    return;
-                }
-                map.clear();
-                RailwayData mtrOverworld = RailwayData.getInstance(overworld);
-                KSDRailwayData ksdOverworld = KSDRailwayData.getInstance(overworld);
-                RailwayData mtrTheNether = RailwayData.getInstance(the_nether);
-                KSDRailwayData ksdTheNether = KSDRailwayData.getInstance(the_nether);
-                RailwayData mtrTheEnd = RailwayData.getInstance(the_end);
-                KSDRailwayData ksdTheEnd = KSDRailwayData.getInstance(the_end);
                 if (areas == ClientData.STATIONS) {
                     KSDClientData.STATIONS.forEach(station -> {
                         for(V area : areas) {
@@ -46,6 +37,12 @@ public class DataCacheMixin {
                         }
                     });
                 } else {
+                    RailwayData mtrOverworld = overworld == null ? null : RailwayData.getInstance(overworld);
+                    KSDRailwayData ksdOverworld = overworld == null ? null : KSDRailwayData.getInstance(overworld);
+                    RailwayData mtrTheNether = the_nether == null ? null : RailwayData.getInstance(the_nether);
+                    KSDRailwayData ksdTheNether = the_nether == null ? null : KSDRailwayData.getInstance(the_nether);
+                    RailwayData mtrTheEnd = the_end == null ? null : RailwayData.getInstance(the_end);
+                    KSDRailwayData ksdTheEnd = the_end == null ? null : KSDRailwayData.getInstance(the_end);
                     if (overworld != null && the_nether != null && the_end != null) {
                         if (ksdOverworld != null && mtrOverworld != null && areas == mtrOverworld.stations) {
                             ksdOverworld.stations.forEach(station -> {
@@ -56,7 +53,6 @@ public class DataCacheMixin {
                                     }
                                 }
                             });
-                            return;
                         }
                         if (ksdTheNether != null && mtrTheNether != null && areas == mtrTheNether.stations) {
                             ksdTheNether.stations.forEach(station -> {
@@ -67,7 +63,6 @@ public class DataCacheMixin {
                                     }
                                 }
                             });
-                            return;
                         }
                         if (ksdTheEnd != null && mtrTheEnd != null && areas == mtrTheEnd.stations) {
                             ksdTheEnd.stations.forEach(station -> {
@@ -79,6 +74,14 @@ public class DataCacheMixin {
                                 }
                             });
                         }
+                    }
+                }
+            }
+            if (!map.containsKey(savedRail.id)) {
+                for(V area : areas) {
+                    if (area.isTransportMode(savedRail.transportMode) && area.inArea(pos.getX(), pos.getZ())) {
+                        map.put(savedRail.id, area);
+                        break;
                     }
                 }
             }

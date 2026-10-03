@@ -2,11 +2,9 @@ package net.hulan.ksd;
 
 import mtr.MTR;
 import mtr.RegistryObject;
-import mtr.data.RailwayData;
 import net.hulan.ksd.data.*;
 import net.hulan.ksd.packet.KSDPacket;
 import net.hulan.ksd.packet.KSDPacketServer;
-import net.hulan.ksd.utils.DataUtilities;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.Item;
@@ -117,31 +115,22 @@ public class KSDMain implements KSDBlocks, KSDItems, KSDCreativeModTabs, KSDPack
                         railwayData -> railwayData.dataCache.routeIdMap,
                         null,
                         true));
-        mtr.Registry.registerTickEvent(playerTick -> {
-            pendingInitialSync.entrySet().removeIf(entry -> {
-                ServerPlayer player = playerTick.getPlayerList().getPlayer(entry.getKey());
-                if (player == null) {
-                    // The join callback can run before the player is visible in the list.
-                    return false;
-                }
-                if (entry.getValue() <= 0) {
-                    KSDRailwayData railwayData = KSDRailwayData.getInstance(player.getLevel());
-                    if (railwayData != null) {
-                        railwayData.onPlayerJoin(player);
-                    }
-                    return true;
-                }
-                entry.setValue(entry.getValue() - 1);
+        mtr.Registry.registerTickEvent(playerTick -> pendingInitialSync.entrySet().removeIf(entry -> {
+            ServerPlayer player = playerTick.getPlayerList().getPlayer(entry.getKey());
+            if (player == null) {
+                // The join callback can run before the player is visible in the list.
                 return false;
-            });
-            playerTick.getAllLevels().forEach(level -> {
-                KSDRailwayData ksd = KSDRailwayData.getInstance(level);
-                RailwayData mtr = RailwayData.getInstance(level);
-                if (ksd != null && mtr != null) {
-                    FirstClassValidationSystem.tick(ksd, mtr, level, DataUtilities.filterToList(level.players(), player -> !player.isSpectator()));
+            }
+            if (entry.getValue() <= 0) {
+                KSDRailwayData railwayData = KSDRailwayData.getInstance(player.getLevel());
+                if (railwayData != null) {
+                    railwayData.onPlayerJoin(player);
                 }
-            });
-        });
+                return true;
+            }
+            entry.setValue(entry.getValue() - 1);
+            return false;
+        }));
         mtr.Registry.registerPlayerJoinEvent((player) -> {
             KSDRailwayData ksdRailwayData = KSDRailwayData.getInstance(player.getLevel());
             if (ksdRailwayData != null) {

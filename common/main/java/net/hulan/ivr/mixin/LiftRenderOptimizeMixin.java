@@ -1,7 +1,7 @@
 package net.hulan.ivr.mixin;
 
 import mtr.data.LiftClient;
-import net.hulan.ivr.utils.TrainRenderOptimize;
+import net.hulan.ivr.utils.LiftVisibility;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,10 +29,16 @@ public abstract class LiftRenderOptimizeMixin {
             at = @At(value = "INVOKE",
                     target = "Lmtr/data/LiftClient$RenderLift;renderLift(DDDFF)V"),
             remap = false)
-    private void ivr$renderLiftIfVisible(LiftClient.RenderLift renderLift, double x, double y, double z, float frontOpen, float backOpen) {
+    private void ivr$renderLiftIfVisible(LiftClient.RenderLift renderLift,
+                                         double x,
+                                         double y,
+                                         double z,
+                                         float frontOpen,
+                                         float backOpen) {
         LiftClient lift = (LiftClient) (Object) this;
         boolean relative = lift.getViewOffset() != null;
-        if (TrainRenderOptimize.shouldRenderLift(net.minecraft.client.Minecraft.getInstance().level, lift.id, new Vec3(x, y, z), relative)) {
+        if (LiftVisibility.shouldRender(net.minecraft.client.Minecraft.getInstance().level, lift.id, new Vec3(x, y, z), relative)
+                && (relative || !LiftVisibility.shouldCullOccluded(net.minecraft.client.Minecraft.getInstance().level, lift.id, new Vec3(x, y, z)))) {
             renderLift.renderLift(x, y, z, frontOpen, backOpen);
         }
     }

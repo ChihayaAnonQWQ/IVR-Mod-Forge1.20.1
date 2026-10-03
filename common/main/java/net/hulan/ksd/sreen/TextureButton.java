@@ -5,10 +5,14 @@ import mtr.mappings.ButtonMapper;
 import mtr.mappings.UtilitiesClient;
 import net.hulan.ksd.utils.RenderUtilities;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /** A button that can display a full-size texture while retaining its normal click behavior. */
 public class TextureButton extends ButtonMapper {
@@ -16,6 +20,9 @@ public class TextureButton extends ButtonMapper {
     private static final int MISSING_TEXTURE_BACKGROUND = 0xFF4A4A4A;
     private static final int HOVER_BORDER_COLOR = 0xFFFFFFFF;
     private static final int HOVER_BORDER_WIDTH = 2;
+    private static final int TEXT_PADDING = 4;
+    private static final int LINE_HEIGHT = 10;
+    private static final int TEXT_HEIGHT = 8;
     private ResourceLocation texture;
 
     public TextureButton(Component message, Button.OnPress onPress) {
@@ -73,21 +80,85 @@ public class TextureButton extends ButtonMapper {
     }
 
     private void drawMessage(PoseStack matrices) {
-        if (getMessage().getString().isEmpty()) {
+        final String message = getMessage().getString();
+        if (message.isEmpty() || getWidth() <= TEXT_PADDING * 2 || getHeight() <= TEXT_PADDING * 2) {
             return;
         }
-        final Minecraft minecraft = Minecraft.getInstance();
-        final int messageWidth = minecraft.font.width(getMessage());
+        final Font font = Minecraft.getInstance().font;
+        final int availableWidth = getWidth() - TEXT_PADDING * 2;
+        final List<String> lines = wrapMessage(message, font, availableWidth);
+        if (lines.isEmpty()) {
+            return;
+        }
+        final int textHeight = TEXT_HEIGHT + (lines.size() - 1) * LINE_HEIGHT;
+        int widestLine = 0;
+        for (String line : lines) {
+            widestLine = Math.max(widestLine, font.width(line));
+        }
+        final float scale = Math.min(1.0F, Math.min(
+                widestLine == 0 ? 1.0F : (float) availableWidth / widestLine,
+                (float) (getHeight() - TEXT_PADDING * 2) / textHeight));
         final int widgetX = UtilitiesClient.getWidgetX(this);
         final int widgetY = UtilitiesClient.getWidgetY(this);
-        final int widgetWidth = getWidth();
-        final int widgetHeight = getHeight();
-        minecraft.font.draw(
-                matrices,
-                getMessage(),
-                widgetX + (widgetWidth - messageWidth) / 2.0F,
-                widgetY + (widgetHeight - 8) / 2.0F,
-                0xFFFFFFFF);
+        matrices.pushPose();
+        matrices.translate(widgetX + getWidth() / 2.0F, widgetY + getHeight() / 2.0F, 0);
+        matrices.scale(scale, scale, 1.0F);
+        for (int i = 0; i < lines.size(); i++) {
+            final String line = lines.get(i);
+            font.draw(matrices, line, -font.width(line) / 2.0F,
+                    -textHeight / 2.0F + i * LINE_HEIGHT, 0xFFFFFFFF);
+        }
+        matrices.popPose();
+    }
+
+    private static List<String> wrapMessage(String message, Font font, int maxWidth) {
+        final List<String> lines = new ArrayList<>();
+        final StringBuilder line = new StringBuilder();
+        final StringBuilder word = new StringBuilder();
+        boolean pendingSpace = false;
+        for (int offset = 0; offset < message.length();) {
+            final int codePoint = message.codePointAt(offset);
+            offset += Character.charCount(codePoint);
+            if (codePoint == '\n') {
+                appendWord(lines, line, word, pendingSpace, font, maxWidth);
+                lines.add(line.toString());
+                line.setLength(0);
+                pendingSpace = false;
+            } else if (Character.isWhitespace(codePoint)) {
+                appendWord(lines, line, word, pendingSpace, font, maxWidth);
+                pendingSpace = true;
+            } else if (Character.UnicodeScript.of(codePoint) == Character.UnicodeScript.HAN) {
+                appendWord(lines, line, word, pendingSpace, font, maxWidth);
+                pendingSpace = false;
+                appendToken(lines, line, new String(Character.toChars(codePoint)), false, font, maxWidth);
+            } else {
+                word.appendCodePoint(codePoint);
+            }
+        }
+        appendWord(lines, line, word, pendingSpace, font, maxWidth);
+        lines.add(line.toString());
+        return lines;
+    }
+
+    private static void appendWord(List<String> lines, StringBuilder line, StringBuilder word,
+                                   boolean pendingSpace, Font font, int maxWidth) {
+        if (!word.isEmpty()) {
+            appendToken(lines, line, word.toString(), pendingSpace, font, maxWidth);
+            word.setLength(0);
+        }
+    }
+
+    private static void appendToken(List<String> lines, StringBuilder line, String token,
+                                    boolean spaceBefore, Font font, int maxWidth) {
+        final String candidate = line.isEmpty() ? token : line + (spaceBefore ? " " : "") + token;
+        if (!line.isEmpty() && font.width(candidate) > maxWidth) {
+            lines.add(line.toString());
+            line.setLength(0);
+        }
+        if (!line.isEmpty() && spaceBefore) {
+            line.append(' ');
+        }
+        line.append(token);
     }
 
     private void drawHoverBorder(PoseStack matrices) {

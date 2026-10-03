@@ -13,15 +13,17 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
-public class NPCSpawnEgg extends SpawnEggItem {
+public class ItemNPCSpawnEgg extends SpawnEggItem {
 
     public static final String TICKETS_ROLE = "tickets";
     public static final String FA_ROLE = "fare_adjustments";
     private final EntityType<? extends NPC> npcType;
+    public final CreativeModeTabs.Wrapper creativeModeTab;
 
-    public NPCSpawnEgg(mtr.RegistryObject<? extends EntityType<? extends NPC>> entityType, int backgroundColor, int highlightColor, CreativeModeTabs.Wrapper creativeModeTab) {
+    public ItemNPCSpawnEgg(mtr.RegistryObject<? extends EntityType<? extends NPC>> entityType, int backgroundColor, int highlightColor, CreativeModeTabs.Wrapper creativeModeTab) {
         super(entityType.get(), backgroundColor, highlightColor, RegistryUtilities.createItemProperties(creativeModeTab::get));
         this.npcType = entityType.get();
+        this.creativeModeTab = creativeModeTab;
     }
 
     public @NotNull InteractionResult useOn(UseOnContext context) {
@@ -42,7 +44,7 @@ public class NPCSpawnEgg extends SpawnEggItem {
         npc.setPersistenceRequired();
         level.addFreshEntity(npc);
         ItemStack stack = context.getItemInHand();
-        if (!NPCPlatform.isCreative(context.getPlayer())) {
+        if (context.getPlayer() == null || !NPCPlatform.isCreative(context.getPlayer())) {
             stack.shrink(1);
         }
         return InteractionResult.CONSUME;

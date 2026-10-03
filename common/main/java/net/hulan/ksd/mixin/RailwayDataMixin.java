@@ -37,25 +37,21 @@ public class RailwayDataMixin {
             KSDStation station = KSDRailwayData.getStation(KSDClientData.STATIONS, pos);
             cir.setReturnValue(station != null ? station.toMTRStation() : null);
         } else {
-            if (overworld != null && the_nether != null && the_end != null) {
-                RailwayData mtrOverworld = RailwayData.getInstance(overworld);
-                KSDRailwayData ksdOverworld = KSDRailwayData.getInstance(overworld);
-                RailwayData mtrTheNether = RailwayData.getInstance(the_nether);
-                KSDRailwayData ksdTheNether = KSDRailwayData.getInstance(the_nether);
-                RailwayData mtrTheEnd = RailwayData.getInstance(the_end);
-                KSDRailwayData ksdTheEnd = KSDRailwayData.getInstance(the_end);
-                if (ksdOverworld != null && mtrOverworld != null && stations == mtrOverworld.stations) {
-                    KSDStation station = KSDRailwayData.getStation(ksdOverworld.stations, pos);
-                    cir.setReturnValue(station != null ? station.toMTRStation() : null);
-                }
-                if (ksdTheNether != null && mtrTheNether != null && stations == mtrTheNether.stations) {
-                    KSDStation station = KSDRailwayData.getStation(ksdTheNether.stations, pos);
-                    cir.setReturnValue(station != null ? station.toMTRStation() : null);
-                }
-                if (ksdTheEnd != null && mtrTheEnd != null && stations == mtrTheEnd.stations) {
-                    KSDStation station = KSDRailwayData.getStation(ksdTheEnd.stations, pos);
-                    cir.setReturnValue(station != null ? station.toMTRStation() : null);
-                }
+            RailwayData mtrOverworld = overworld == null ? null : RailwayData.getInstance(overworld);
+            KSDRailwayData ksdOverworld = overworld == null ? null : KSDRailwayData.getInstance(overworld);
+            RailwayData mtrTheNether = the_nether == null ? null : RailwayData.getInstance(the_nether);
+            KSDRailwayData ksdTheNether = the_nether == null ? null : KSDRailwayData.getInstance(the_nether);
+            RailwayData mtrTheEnd = the_end == null ? null : RailwayData.getInstance(the_end);
+            KSDRailwayData ksdTheEnd = the_end == null ? null : KSDRailwayData.getInstance(the_end);
+            if (ksdOverworld != null && mtrOverworld != null && stations == mtrOverworld.stations) {
+                KSDStation station = KSDRailwayData.getStation(ksdOverworld.stations, pos);
+                cir.setReturnValue(station != null ? station.toMTRStation() : null);
+            } else if (ksdTheNether != null && mtrTheNether != null && stations == mtrTheNether.stations) {
+                KSDStation station = KSDRailwayData.getStation(ksdTheNether.stations, pos);
+                cir.setReturnValue(station != null ? station.toMTRStation() : null);
+            } else if (ksdTheEnd != null && mtrTheEnd != null && stations == mtrTheEnd.stations) {
+                KSDStation station = KSDRailwayData.getStation(ksdTheEnd.stations, pos);
+                cir.setReturnValue(station != null ? station.toMTRStation() : null);
             }
         }
     }
@@ -78,25 +74,21 @@ public class RailwayDataMixin {
             KSDClientData.PLATFORMS.add(new KSDPlatform(savedRailId, transportMode, posStart, posEnd));
             KSDClientData.DATA_CACHE.sync();
         } else {
-            if (overworld != null && the_nether != null && the_end != null) {
-                RailwayData mtrOverworld = RailwayData.getInstance(overworld);
-                KSDRailwayData ksdOverworld = KSDRailwayData.getInstance(overworld);
-                RailwayData mtrTheNether = RailwayData.getInstance(the_nether);
-                KSDRailwayData ksdTheNether = KSDRailwayData.getInstance(the_nether);
-                RailwayData mtrTheEnd = RailwayData.getInstance(the_end);
-                KSDRailwayData ksdTheEnd = KSDRailwayData.getInstance(the_end);
-                if (ksdOverworld != null && mtrOverworld != null && platforms == mtrOverworld.platforms) {
-                    ksdOverworld.platforms.add(new KSDPlatform(savedRailId, transportMode, posStart, posEnd));
-                    ksdOverworld.dataCache.sync();
-                }
-                if (ksdTheNether != null && mtrTheNether != null && platforms == mtrTheNether.platforms) {
-                    ksdTheNether.platforms.add(new KSDPlatform(savedRailId, transportMode, posStart, posEnd));
-                    ksdTheNether.dataCache.sync();
-                }
-                if (ksdTheEnd != null && mtrTheEnd != null && platforms == mtrTheEnd.platforms) {
-                    ksdTheEnd.platforms.add(new KSDPlatform(savedRailId, transportMode, posStart, posEnd));
-                    ksdTheEnd.dataCache.sync();
-                }
+            RailwayData mtrOverworld = overworld == null ? null : RailwayData.getInstance(overworld);
+            KSDRailwayData ksdOverworld = overworld == null ? null : KSDRailwayData.getInstance(overworld);
+            RailwayData mtrTheNether = the_nether == null ? null : RailwayData.getInstance(the_nether);
+            KSDRailwayData ksdTheNether = the_nether == null ? null : KSDRailwayData.getInstance(the_nether);
+            RailwayData mtrTheEnd = the_end == null ? null : RailwayData.getInstance(the_end);
+            KSDRailwayData ksdTheEnd = the_end == null ? null : KSDRailwayData.getInstance(the_end);
+            if (ksdOverworld != null && mtrOverworld != null && platforms == mtrOverworld.platforms) {
+                ksdOverworld.platforms.add(new KSDPlatform(savedRailId, transportMode, posStart, posEnd));
+                ksdOverworld.dataCache.sync();
+            } else if (ksdTheNether != null && mtrTheNether != null && platforms == mtrTheNether.platforms) {
+                ksdTheNether.platforms.add(new KSDPlatform(savedRailId, transportMode, posStart, posEnd));
+                ksdTheNether.dataCache.sync();
+            } else if (ksdTheEnd != null && mtrTheEnd != null && platforms == mtrTheEnd.platforms) {
+                ksdTheEnd.platforms.add(new KSDPlatform(savedRailId, transportMode, posStart, posEnd));
+                ksdTheEnd.dataCache.sync();
             }
         }
     }

@@ -45,6 +45,9 @@ subprojects {
 
     tasks.withType(ProcessResources).configureEach {
         def packFormats = ['1.16.5': 6, '1.17.1': 7, '1.18.2': 8, '1.19.2': 9, '1.19.4': 13]
+        filesMatching('fabric.mod.json') {
+            expand(project.properties)
+        }
         filesMatching('pack.mcmeta') {
             expand(pack_format: packFormats[project.minecraft_version] ?: 8)
         }
@@ -58,7 +61,7 @@ subprojects {
     }
 
     java {
-        toolchain.languageVersion = JavaLanguageVersion.of(17)
+        toolchain.languageVersion = JavaLanguageVersion.of(21)
         archivesBaseName = "IVR-FABRIC-${project.minecraft_version}"
     }
 
@@ -79,7 +82,7 @@ subprojects {
             config.getProperty('project_id', ''))
         def modrinthProjectName = config.getProperty('project_name', 'IVR')
         def modrinthVersionType = config.getProperty('version_type', 'release')
-        def version = rootProject.findProperty('mod_version') ?: project.version
+        def version = project.version
         def changelogFile = rootProject.ext.modrinthChangelogFile
 
         modrinth {

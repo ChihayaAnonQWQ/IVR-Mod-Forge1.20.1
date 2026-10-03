@@ -2,6 +2,7 @@ package net.hulan.ivr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
 import mtr.mappings.EntityRendererMapper;
 import net.hulan.ivr.entity.NPC;
 import net.minecraft.client.model.PlayerModel;
@@ -18,7 +19,7 @@ import java.util.UUID;
 
 public class NPCSteveRenderer<T extends NPC> extends EntityRendererMapper<T> {
 
-    private static final float MODEL_SCALE = 1.0F;
+    private static final float MODEL_SCALE = 1.7777778F;
     private static final float HEAD_Y_OFFSET = 21.5F / 16.0F / MODEL_SCALE;
     private static final float NAME_TAG_VERTICAL_OFFSET = 0F;
     private static final ResourceLocation STEVE = DefaultPlayerSkin.getDefaultSkin(UUID.nameUUIDFromBytes("Steve".getBytes()));
@@ -33,6 +34,7 @@ public class NPCSteveRenderer<T extends NPC> extends EntityRendererMapper<T> {
     public void render(@NotNull T e, float y, float p, PoseStack s, MultiBufferSource b, int l){
         model.setupAnim(e, 0, 0, p, y, e.getXRot());
         s.pushPose();
+        s.mulPose(Vector3f.YP.rotationDegrees(180.0F - e.getYRot()));
         s.scale(-MODEL_SCALE, -MODEL_SCALE, MODEL_SCALE);
         s.translate(0.0F, -1.501F, 0.0F);
         VertexConsumer vertexConsumer = b.getBuffer(

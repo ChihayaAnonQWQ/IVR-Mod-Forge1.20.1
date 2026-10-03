@@ -18,7 +18,7 @@ import java.util.UUID;
 
 public class NPCSteveRenderer<T extends NPC> extends EntityRendererMapper<T> {
 
-    private static final float MODEL_SCALE = 1.0F;
+    private static final float MODEL_SCALE = 1.3333333F;
     private static final float HEAD_Y_OFFSET = 21.5F / 16.0F / MODEL_SCALE;
     private static final float NAME_TAG_VERTICAL_OFFSET = 0F;
     private static final ResourceLocation STEVE_TEXTURE = DefaultPlayerSkin.getDefaultSkin(UUID.nameUUIDFromBytes("Steve".getBytes()));

@@ -1,14 +1,18 @@
 package net.hulan.ivr.mixin;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.hulan.ivr.utils.TrainRenderOptimize;
+import net.hulan.ivr.utils.BlockEntityVisibility;
+import net.hulan.ivr.utils.BlockEntityCullDebug;
+import net.hulan.ivr.utils.RenderTimingDebug;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
@@ -37,8 +41,29 @@ public abstract class BlockEntityRenderOptimizeMixin {
      */
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
     private void ivr$cullAnyBlockEntity(BlockEntity blockEntity, float tickDelta, PoseStack matrices, MultiBufferSource multiBufferSource, CallbackInfo ci) {
-        if (!TrainRenderOptimize.shouldRenderBlockEntity(blockEntity, BLOCK_ENTITY_BOUNDING_RADIUS)) {
+        long started = RenderTimingDebug.begin(RenderTimingDebug.BE);
+        BlockEntityCullDebug.Result result;
+        try {
+            result = BlockEntityVisibility.classify(blockEntity, BLOCK_ENTITY_BOUNDING_RADIUS);
+        } finally {
+            RenderTimingDebug.end(RenderTimingDebug.BE, started);
+        }
+        BlockEntityCullDebug.record(blockEntity, result);
+        if (result == BlockEntityCullDebug.Result.VIEW_CULLED || result == BlockEntityCullDebug.Result.OCCLUDED) {
             ci.cancel();
+        }
+    }
+
+    @Redirect(method = "setupAndRender",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/blockentity/BlockEntityRenderer;render(Lnet/minecraft/world/level/block/entity/BlockEntity;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;II)V"))
+    private static void ivr$timeActualBlockEntityRender(BlockEntityRenderer<BlockEntity> renderer,
+            BlockEntity entity, float tickDelta, PoseStack matrices, MultiBufferSource buffers,
+            int light, int overlay) {
+        long started = RenderTimingDebug.begin(RenderTimingDebug.BE_RENDER);
+        try {
+            renderer.render(entity, tickDelta, matrices, buffers, light, overlay);
+        } finally {
+            RenderTimingDebug.end(RenderTimingDebug.BE_RENDER, started);
         }
     }
 }

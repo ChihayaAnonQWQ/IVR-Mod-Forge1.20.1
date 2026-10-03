@@ -2,6 +2,7 @@ package net.hulan.ivr.render;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
 import mtr.mappings.EntityRendererMapper;
 import net.hulan.ivr.entity.NPC;
 import net.minecraft.client.model.PlayerModel;
@@ -19,7 +20,6 @@ import java.util.UUID;
 public class NPCSteveRenderer<T extends NPC> extends EntityRendererMapper<T> {
 
     private static final float MODEL_SCALE = 1.0F;
-    private static final float HEAD_Y_OFFSET = 21.5F / 16.0F / MODEL_SCALE;
     private static final float NAME_TAG_VERTICAL_OFFSET = 0F;
     private static final ResourceLocation STEVE_TEXTURE = DefaultPlayerSkin.getDefaultSkin(
             UUID.nameUUIDFromBytes("Steve".getBytes())
@@ -40,6 +40,7 @@ public class NPCSteveRenderer<T extends NPC> extends EntityRendererMapper<T> {
                        MultiBufferSource bufferSource, int light) {
         model.setupAnim(entity, 0, 0, partialTick, yaw, entity.getXRot());
         poseStack.pushPose();
+        poseStack.mulPose(Vector3f.YP.rotationDegrees(180.0F - yaw));
         poseStack.scale(-MODEL_SCALE, -MODEL_SCALE, MODEL_SCALE);
         poseStack.translate(0.0F, -1.501F, 0.0F);
         VertexConsumer vertexConsumer = bufferSource.getBuffer(
@@ -60,7 +61,6 @@ public class NPCSteveRenderer<T extends NPC> extends EntityRendererMapper<T> {
         model.head.visible = true;
         model.hat.visible = true;
         poseStack.pushPose();
-        poseStack.translate(0.0F, HEAD_Y_OFFSET, 0.0F);
         poseStack.translate(model.head.x / 16.0F, model.head.y / 16.0F, model.head.z / 16.0F);
         poseStack.scale(1.0F / MODEL_SCALE, 1.0F / MODEL_SCALE, 1.0F / MODEL_SCALE);
         poseStack.translate(-model.head.x / 16.0F, -model.head.y / 16.0F, -model.head.z / 16.0F);

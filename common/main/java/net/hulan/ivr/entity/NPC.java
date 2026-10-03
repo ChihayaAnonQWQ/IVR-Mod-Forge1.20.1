@@ -21,6 +21,7 @@ public abstract class NPC extends IVRNPC {
                 .add(Attributes.MOVEMENT_SPEED, 0.0D)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0D);
     }
+
     protected NPC(EntityType<? extends NPC> type, Level level) {
         super(type, level);
         setNoAi(true);

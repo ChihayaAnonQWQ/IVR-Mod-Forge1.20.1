@@ -9,6 +9,7 @@ import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.DeferredRegisterHolder;
 import mtr.mappings.ForgeUtilities;
 import mtr.mappings.RegistryUtilities;
+import net.hulan.ivr.item.ItemNPCSpawnEgg;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -16,11 +17,16 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.entity.EntityType;
 import net.hulan.ivr.platform.NPCPlatform;
 import net.hulan.ivr.entity.IVRNPC;
+import net.hulan.ivr.entity.NPC;
+import net.hulan.ivr.entity.NPCs;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 @Mod(IVR.MOD_ID)
 public class IVRForgeMain {
@@ -48,6 +54,9 @@ public class IVRForgeMain {
         BLOCK_ENTITY_TYPES.register();
         ENTITY_TYPES.register();
         eventBus.register(IVRForgeEventBus.class);
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            eventBus.register(NPCPlatform.getInstance().getClass());
+        }
     }
 
     private static void registerItem(String path, RegistryObject<Item> item) {
@@ -57,6 +66,8 @@ public class IVRForgeMain {
                 Registry.registerCreativeModeTab(((ItemWithCreativeTabBase) itemObject).creativeModeTab.resourceLocation, itemObject);
             } else if (itemObject instanceof ItemWithCreativeTabBase.ItemPlaceOnWater) {
                 Registry.registerCreativeModeTab(((ItemWithCreativeTabBase.ItemPlaceOnWater) itemObject).creativeModeTab.resourceLocation, itemObject);
+            } else if (itemObject instanceof ItemNPCSpawnEgg npcSpawnEgg) {
+                Registry.registerCreativeModeTab(npcSpawnEgg.creativeModeTab.resourceLocation, itemObject);
             }
             return itemObject;
         });
@@ -93,6 +104,12 @@ public class IVRForgeMain {
     }
 
     public static class IVRForgeEventBus {
+
+        @SubscribeEvent
+        public static void onEntityAttributeCreation(final EntityAttributeCreationEvent event) {
+            event.put(NPCs.TICKETS.get(), NPC.createAttributes().build());
+            event.put(NPCs.FARE_ADJUSTMENTS.get(), NPC.createAttributes().build());
+        }
 
         @SubscribeEvent
         public static void onClientSetup(final FMLClientSetupEvent event) {

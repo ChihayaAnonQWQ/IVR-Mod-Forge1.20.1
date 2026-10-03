@@ -16,7 +16,6 @@ import java.util.UUID;
 public class NPCSteveRenderer<T extends NPC> extends EntityRendererMapper<T> {
 
     private static final float MODEL_SCALE = 1.0F;
-    private static final float HEAD_Y_OFFSET = 21.5F / 16.0F / MODEL_SCALE;
     private static final float NAME_TAG_VERTICAL_OFFSET = 0F;
     private static final ResourceLocation STEVE_TEXTURE = DefaultPlayerSkin.getDefaultSkin(
             UUID.nameUUIDFromBytes("Steve".getBytes())
@@ -51,7 +50,6 @@ public class NPCSteveRenderer<T extends NPC> extends EntityRendererMapper<T> {
         model.head.visible = true;
         model.hat.visible = true;
         poseStack.pushPose();
-        poseStack.translate(0.0F, HEAD_Y_OFFSET, 0.0F);
         poseStack.translate(model.head.x / 16.0F, model.head.y / 16.0F, model.head.z / 16.0F);
         poseStack.scale(1.0F / MODEL_SCALE, 1.0F / MODEL_SCALE, 1.0F / MODEL_SCALE);
         poseStack.translate(-model.head.x / 16.0F, -model.head.y / 16.0F, -model.head.z / 16.0F);

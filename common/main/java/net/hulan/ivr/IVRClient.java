@@ -8,11 +8,16 @@ import net.hulan.ivr.render.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.hulan.ivr.platform.NPCPlatform;
+import net.hulan.ivr.block.BlockKCRClock;
+import net.hulan.ivr.utils.BlockEntityVisibility;
+import net.minecraft.world.phys.AABB;
 
 public class IVRClient implements IVRPacket, IVRBlockEntityTypes, IVRBlocks, IPacket {
 
     public static void init() {
         NPCPlatform.getInstance().registerClientRenderers();
+        BlockEntityVisibility.registerStaticBoundsProvider(BlockKCRClock.TileEntityKCRClock.class,
+                entity -> new AABB(entity.getBlockPos()));
         RegistryClient.registerBlockRenderType(RenderType.cutout(), KCR_CLOCK.get());
         RegistryClient.registerBlockRenderType(RenderType.cutout(), IVR_LOGO.get());
         RegistryClient.registerBlockRenderType(RenderType.cutout(), KCR_PLATFORM_INDENTED.get());

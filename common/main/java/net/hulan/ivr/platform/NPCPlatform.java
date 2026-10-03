@@ -1,7 +1,10 @@
 package net.hulan.ivr.platform;
 
+import mtr.RegistryClient;
 import mtr.RegistryObject;
 import net.hulan.ivr.entity.NPC;
+import net.hulan.ivr.entity.IVRNPCs;
+import net.hulan.ivr.render.NPCSteveRenderer;
 import net.minecraft.SharedConstants;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -49,7 +52,10 @@ public abstract class NPCPlatform {
 
     public abstract void registerEntities(EntityRegistrar registrar);
 
-    public abstract void registerClientRenderers();
+    public void registerClientRenderers() {
+        RegistryClient.registerEntityRenderer(IVRNPCs.TICKETS.get(), NPCSteveRenderer::new);
+        RegistryClient.registerEntityRenderer(IVRNPCs.FARE_ADJUSTMENTS.get(), NPCSteveRenderer::new);
+    }
 
     public void registerAttributes() {}
 

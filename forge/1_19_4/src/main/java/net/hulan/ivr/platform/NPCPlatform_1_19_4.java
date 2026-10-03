@@ -1,9 +1,10 @@
 package net.hulan.ivr.platform;
 
-import mtr.RegistryClient;
 import net.hulan.ivr.entity.IVRNPCs;
-import net.hulan.ivr.render.NPCSteveRenderer;
 import net.minecraft.world.entity.player.Player;
+import net.hulan.ivr.render.NPCSteveRenderer;
+import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 @SuppressWarnings("unused")
 public class NPCPlatform_1_19_4 extends NPCPlatform {
@@ -15,9 +16,10 @@ public class NPCPlatform_1_19_4 extends NPCPlatform {
         registrar.register("fare_adjustments", IVRNPCs.FARE_ADJUSTMENTS);
     }
 
-    @Override
-    public void registerClientRenderers() {
-        RegistryClient.registerEntityRenderer(IVRNPCs.TICKETS.get(), NPCSteveRenderer::new);
-        RegistryClient.registerEntityRenderer(IVRNPCs.FARE_ADJUSTMENTS.get(), NPCSteveRenderer::new);
+    @SubscribeEvent
+    public static void registerForgeRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(IVRNPCs.TICKETS.get(), NPCSteveRenderer::new);
+        event.registerEntityRenderer(IVRNPCs.FARE_ADJUSTMENTS.get(), NPCSteveRenderer::new);
     }
+
 }

@@ -17,6 +17,7 @@
     "TicketSystemMixin",
     "TrainInvoker",
     "TrainMixin",
+    "TrainServerFirstClassMixin",
     "TrainServerAccessor",
     "VehicleRidingServerMixin"
   ],

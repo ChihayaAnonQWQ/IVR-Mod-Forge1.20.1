@@ -18,7 +18,7 @@ def modrinthGameVersions = [
 ]
 
 allprojects {
-    version = findProperty('mod_version') ?: '1.2-beta'
+    version = property('mod_version')
     group = findProperty('maven_group') ?: 'net.hulan'
 
     repositories {
@@ -104,7 +104,7 @@ subprojects {
             config.getProperty('project_id', ''))
         def modrinthProjectName = config.getProperty('project_name', 'IVR')
         def modrinthVersionType = config.getProperty('version_type', 'release')
-        def version = rootProject.findProperty('mod_version') ?: project.version
+        def version = project.version
         def changelogFile = rootProject.ext.modrinthChangelogFile
 
         modrinth {

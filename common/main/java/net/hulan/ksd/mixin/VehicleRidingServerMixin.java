@@ -54,7 +54,7 @@ public class VehicleRidingServerMixin {
                     if (ksd != null) {
                         KSDRoute route = DataUtilities.getRoute(ksd.routes, routeId);
                         if (route != null && RailDataUtilities.hasFirstClassService(route) && route.firstClassCar == percentageOffset) {
-                            FirstClassValidationSystem.setIllegal(world, player, percentageOffset);
+                            FirstClassValidationSystem.setIllegal(world, player);
                         }
                     }
                 }

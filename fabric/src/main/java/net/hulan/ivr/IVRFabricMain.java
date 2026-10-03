@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.hulan.ivr.platform.NPCPlatform;
 import net.hulan.ivr.entity.NPC;
+import net.hulan.ivr.item.ItemNPCSpawnEgg;
 import net.minecraft.world.entity.EntityType;
 
 import java.util.Objects;
@@ -43,6 +44,8 @@ public class IVRFabricMain implements ModInitializer {
             FabricRegistryUtilities.registerCreativeModeTab(((ItemWithCreativeTabBase)itemObject).creativeModeTab.get(), itemObject);
         } else if (itemObject instanceof ItemWithCreativeTabBase.ItemPlaceOnWater) {
             FabricRegistryUtilities.registerCreativeModeTab(((ItemWithCreativeTabBase.ItemPlaceOnWater)itemObject).creativeModeTab.get(), itemObject);
+        } else if (itemObject instanceof ItemNPCSpawnEgg npcSpawnEgg) {
+            FabricRegistryUtilities.registerCreativeModeTab(npcSpawnEgg.creativeModeTab.get(), itemObject);
         }
     }
 
@@ -70,6 +73,8 @@ public class IVRFabricMain implements ModInitializer {
     }
 
     private static void registerEntity(String path, RegistryObject<? extends EntityType<? extends NPC>> entity) {
-        Registry.register(RegistryUtilities.registryGetEntityType(), new ResourceLocation(MOD_ID, path), entity.get());
+        ResourceLocation id = new ResourceLocation(MOD_ID, path);
+        Registry.register(RegistryUtilities.registryGetEntityType(), id, entity.get());
+        IVR.LOGGER.info("Registered NPC entity {}", id);
     }
 }

@@ -6,7 +6,7 @@ import mtr.data.*;
 import mtr.mappings.Utilities;
 import mtr.packet.PacketTrainDataBase;
 import net.hulan.ivr.block.StorableBlockEntity;
-import net.hulan.ivr.item.NPCSpawnEgg;
+import net.hulan.ivr.item.ItemNPCSpawnEgg;
 import net.hulan.ivr.entity.NPC;
 import net.hulan.ksd.data.*;
 import net.minecraft.core.BlockPos;
@@ -49,9 +49,9 @@ public class KSDPacketServer extends PacketTrainDataBase implements KSDPacket {
                 return;
             }
             final String role = getNPCRole(npc);
-            if (NPCSpawnEgg.TICKETS_ROLE.equals(role)) {
+            if (ItemNPCSpawnEgg.TICKETS_ROLE.equals(role)) {
                 openTicketsScreenS2C(player, npc.blockPosition());
-            } else if (NPCSpawnEgg.FA_ROLE.equals(role)) {
+            } else if (ItemNPCSpawnEgg.FA_ROLE.equals(role)) {
                 openFareAdjustmentsScreenS2C(player, npc.blockPosition());
             }
         });
@@ -147,12 +147,15 @@ public class KSDPacketServer extends PacketTrainDataBase implements KSDPacket {
             Level world = player.level;
             KSDRailwayData railwayData = KSDRailwayData.getInstance(world);
             if (railwayData != null) {
-                PacketCallback packetCallback = (updatePacket, fullPacket) -> world.players().forEach((worldPlayer) -> {
-                    if (!worldPlayer.getUUID().equals(player.getUUID())) {
-                        Registry.sendToPlayer((ServerPlayer)worldPlayer, packetId, fullPacket);
-                    }
+                PacketCallback packetCallback = (updatePacket, fullPacket) -> {
+                    world.players().forEach(worldPlayer -> {
+                        if (!worldPlayer.getUUID().equals(player.getUUID())) {
+                            Registry.sendToPlayer((ServerPlayer) worldPlayer, packetId, fullPacket);
+                        }
+                    });
                     railwayData.dataCache.sync();
-                });
+                    railwayData.setDirty();
+                };
                 if (isDelete) {
                     deleteData(
                             dataSet.apply(railwayData),
@@ -169,7 +172,7 @@ public class KSDPacketServer extends PacketTrainDataBase implements KSDPacket {
                             packet,
                             packetCallback,
                             createDataWithId,
-                            (data, oldData) -> railwayData.railwayDataLoggingModule.addEvent(player, data.getClass(), data.id, data.name, oldData, KSDRailwayDataLoggingModule.getData(data)));
+                        (data, oldData) -> railwayData.railwayDataLoggingModule.addEvent(player, data.getClass(), data.id, data.name, oldData, KSDRailwayDataLoggingModule.getData(data)));
                 }
             }
         }
