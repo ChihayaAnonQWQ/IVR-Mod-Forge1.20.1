@@ -1,6 +1,5 @@
 package net.hulan.ivr.screen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.block.BlockRailwaySign;
 import mtr.client.CustomResources;
 import mtr.client.IDrawing;
@@ -21,7 +20,7 @@ import net.hulan.ksd.data.KSDPlatform;
 import net.hulan.ksd.data.KSDRailwayData;
 import net.hulan.ksd.data.KSDStation;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -171,18 +170,17 @@ public class ModernSignScreen extends ScreenMapper implements IGui {
     }
 
     @Override
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         try {
-            renderBackground(matrices);
-            super.render(matrices, mouseX, mouseY, delta);
+            renderBackground(guiGraphics);
+            super.render(guiGraphics, mouseX, mouseY, delta);
             if (minecraft == null) {
                 return;
             }
             for (int i = 0; i < signIds.length; i++) {
                 if (signIds[i] != null) {
-                    RenderModernSign.drawSign(matrices, null, null, font, signPos, signIds[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, RenderModernSign.getMaxWidth(signIds, i, false), RenderModernSign.getMaxWidth(signIds, i, true), selectedIds, Direction.UP, 0, (textureId, x, y, size, flipTexture) -> {
-                        UtilitiesClient.beginDrawingTexture(textureId);
-                        blit(matrices, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size);
+                    RenderModernSign.drawSign(guiGraphics.pose(), null, null, font, signPos, signIds[i], (width - SIGN_SIZE * length) / 2F + i * SIGN_SIZE, 0, SIGN_SIZE, RenderModernSign.getMaxWidth(signIds, i, false), RenderModernSign.getMaxWidth(signIds, i, true), selectedIds, Direction.UP, 0, (textureId, x, y, size, flipTexture) -> {
+                        guiGraphics.blit(textureId, (int) x, (int) y, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size);
                     });
                 }
             }
@@ -195,10 +193,10 @@ public class ModernSignScreen extends ScreenMapper implements IGui {
                     if (sign != null) {
                         final boolean moveRight = sign.hasCustomText() && sign.flipCustomText;
                         UtilitiesClient.beginDrawingTexture(sign.textureId);
-                        RenderModernSign.drawSign(matrices, null, null, font, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 2, 2, selectedIds, Direction.UP, 0, (textureId, x1, y1, size, flipTexture) -> blit(matrices, (int) x1, (int) y1, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
+                        RenderModernSign.drawSign(guiGraphics.pose(), null, null, font, signPos, signId, (isBig ? xOffsetBig : xOffsetSmall) + x + (moveRight ? SIGN_BUTTON_SIZE * 2 : 0), BUTTON_Y_START + y, SIGN_BUTTON_SIZE, 2, 2, selectedIds, Direction.UP, 0, (textureId, x1, y1, size, flipTexture) -> guiGraphics.blit(textureId, (int) x1, (int) y1, 0, 0, (int) size, (int) size, (int) (flipTexture ? -size : size), (int) size));
                     }
                 }, false);
-                Gui.drawCenteredString(matrices, font, String.format("%s/%s", page + 1, totalPages), (width - PANEL_WIDTH - SQUARE_SIZE * 4) / 2 + PANEL_WIDTH + SQUARE_SIZE * 2, height - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
+                guiGraphics.drawCenteredString(font, String.format("%s/%s", page + 1, totalPages), (width - PANEL_WIDTH - SQUARE_SIZE * 4) / 2 + PANEL_WIDTH + SQUARE_SIZE * 2, height - SQUARE_SIZE * 2 + TEXT_PADDING, ARGB_WHITE);
             }
         } catch (Exception e) {
             e.printStackTrace();

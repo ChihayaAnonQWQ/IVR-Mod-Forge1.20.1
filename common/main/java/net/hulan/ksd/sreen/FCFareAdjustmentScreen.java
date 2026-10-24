@@ -7,6 +7,7 @@ import net.hulan.ksd.data.FirstClassValidationSystem;
 import net.hulan.ksd.data.Octopus;
 import net.hulan.ksd.packet.KSDPacketClient;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -27,8 +28,8 @@ public class FCFareAdjustmentScreen extends PaymentScreen implements IGui {
     public void tick() {
     }
 
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-        super.render(matrices, mouseX, mouseY, delta);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        super.render(guiGraphics, mouseX, mouseY, delta);
     }
 
     void countTotal() {

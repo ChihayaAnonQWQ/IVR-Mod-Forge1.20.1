@@ -5,7 +5,7 @@ import mtr.Registry;
 import mtr.RegistryObject;
 import mtr.item.ItemWithCreativeTabBase;
 import mtr.mappings.DeferredRegisterHolder;
-import mtr.mappings.ForgeUtilities;
+import mtr.forge.mappings.ForgeUtilities;
 import mtr.mappings.RegistryUtilities;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;

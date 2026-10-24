@@ -10,6 +10,7 @@ import net.hulan.ksd.data.KCRTicketSystem;
 import net.hulan.ksd.data.PaymentMethod;
 import net.hulan.ksd.packet.KSDPacketClient;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -51,15 +52,15 @@ public abstract class PaymentScreen extends ScreenMapper implements KSDGui {
         setPaymentMethod(PaymentMethod.EMERALDS);
     }
 
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-        renderBackground(matrices);
-        KSDGui.renderBg(matrices, width, height, 440, 290);
-        drawCenteredString(matrices, Minecraft.getInstance().font, getTotalText(), width / 2, height / 2 + 42, ARGB_WHITE);
-        drawCenteredString(matrices, Minecraft.getInstance().font, getNeedToPayText(), width / 2, height / 2 + 62, ARGB_WHITE);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        renderBackground(guiGraphics);
+        KSDGui.renderBg(guiGraphics, width, height, 440, 290);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, getTotalText(), width / 2, height / 2 + 42, ARGB_WHITE);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, getNeedToPayText(), width / 2, height / 2 + 62, ARGB_WHITE);
         if (failed) {
-            drawCenteredString(matrices, Minecraft.getInstance().font, getFailedText(), width / 2, height / 2 + 82, RGB_RED | ARGB_BLACK);
+            guiGraphics.drawCenteredString(Minecraft.getInstance().font, getFailedText(), width / 2, height / 2 + 82, RGB_RED | ARGB_BLACK);
         }
-        super.render(matrices, mouseX, mouseY, delta);
+        super.render(guiGraphics, mouseX, mouseY, delta);
     }
 
     public boolean isPauseScreen() {

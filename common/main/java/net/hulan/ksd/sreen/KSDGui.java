@@ -1,8 +1,7 @@
 package net.hulan.ksd.sreen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.data.IGui;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 
 public interface KSDGui extends IGui {
 
@@ -61,14 +60,14 @@ public interface KSDGui extends IGui {
     int BUTTON_HEIGHT = 50;
     int BUTTON_GAP = 10;
 
-    static void renderBg(PoseStack matrices, int screenWidth, int screenHeight, int panelWidth, int panelHeight) {
+    static void renderBg(GuiGraphics guiGraphics, int screenWidth, int screenHeight, int panelWidth, int panelHeight) {
         panelWidth = Math.max(8, panelWidth);
         panelHeight = Math.max(8, panelHeight);
         final int left = screenWidth / 2 - panelWidth / 2;
         final int top = screenHeight / 2 - panelHeight / 2;
         final int right = left + panelWidth;
         final int bottom = top + panelHeight;
-        Gui.fill(matrices, left, top, right, bottom, 0xFFC6C6C6);
-        Gui.fill(matrices, left + 4, top + 4, right - 4, bottom - 4, 0xFF4A4A4A);
+        guiGraphics.fill(left, top, right, bottom, 0xFFC6C6C6);
+        guiGraphics.fill(left + 4, top + 4, right - 4, bottom - 4, 0xFF4A4A4A);
     }
 }

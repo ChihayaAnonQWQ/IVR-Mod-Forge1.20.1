@@ -12,6 +12,7 @@ import net.hulan.ksd.data.SingleTicketSystem;
 import net.hulan.ksd.data.KSDRailwayData;
 import net.hulan.ksd.data.KSDStation;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 
@@ -72,11 +73,11 @@ public class TicketsScreen extends ScreenMapper implements KSDGui {
         addDrawableChild(buttonOpenAddValueScreen);
     }
 
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-        renderBackground(matrices);
-        KSDGui.renderBg(matrices, width, height, panelWidth, panelHeight);
-        drawCenteredString(matrices, Minecraft.getInstance().font, title, width / 2, height / 2 - panelHeight / 2 + 7, IGui.ARGB_WHITE);
-        super.render(matrices, mouseX, mouseY, delta);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        renderBackground(guiGraphics);
+        KSDGui.renderBg(guiGraphics, width, height, panelWidth, panelHeight);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, title, width / 2, height / 2 - panelHeight / 2 + 7, IGui.ARGB_WHITE);
+        super.render(guiGraphics, mouseX, mouseY, delta);
     }
 
     public boolean isPauseScreen() {

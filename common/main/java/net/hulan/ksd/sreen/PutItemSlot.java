@@ -5,7 +5,7 @@ import mtr.data.IGui;
 import mtr.mappings.WidgetMapper;
 import net.hulan.ksd.utils.Utilities;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.item.ItemStack;
 
 /** Client-side wrapper for one temporary inventory slot that is not synchronized to the real inventory. */
@@ -28,16 +28,18 @@ public class PutItemSlot implements WidgetMapper, IGui {
     }
 
     /** Uses a fixed border and highlights empty and occupied slots equally on hover. */
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         Minecraft minecraft = Minecraft.getInstance();
-        Gui.fill(poseStack, x, y, x + SIZE, y + SIZE, 0xFF8B8B8B);
-        Gui.fill(poseStack, x + 1, y + 1, x + SIZE - 1, y + SIZE - 1, 0xFF373737);
+        guiGraphics.fill(x, y, x + SIZE, y + SIZE, 0xFF8B8B8B);
+        guiGraphics.fill(x + 1, y + 1, x + SIZE - 1, y + SIZE - 1, 0xFF373737);
         ItemStack itemStack = getItemStack();
         if (!itemStack.isEmpty()) {
-            Utilities.getInstance().renderGuiItem(poseStack, minecraft.getItemRenderer(), minecraft.font, itemStack, x + 1, y + 1);
+            // Flush batched GUI fills before the raw item render so the item stays on top.
+            guiGraphics.flush();
+            Utilities.getInstance().renderGuiItem(guiGraphics.pose(), minecraft.getItemRenderer(), minecraft.font, itemStack, x + 1, y + 1);
         }
         if (isMouseOver(mouseX, mouseY)) {
-            Gui.fill(poseStack, x + 1, y + 1, x + SIZE - 1, y + SIZE - 1, 0x60FFFFFF);
+            guiGraphics.fill(x + 1, y + 1, x + SIZE - 1, y + SIZE - 1, 0x60FFFFFF);
         }
     }
 

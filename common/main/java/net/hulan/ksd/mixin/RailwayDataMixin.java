@@ -30,6 +30,7 @@ import static net.hulan.ksd.KSDMain.the_end;
 public class RailwayDataMixin {
 
     @Inject(method = "getStation",
+            remap = false,
             at = @At(value = "HEAD"),
             cancellable = true)
     private static void getStation(Set<Station> stations, DataCache dataCache, BlockPos pos, CallbackInfoReturnable<Station> cir) {
@@ -57,6 +58,7 @@ public class RailwayDataMixin {
     }
 
     @Inject(method = "addRail(Ljava/util/Map;Ljava/util/Set;Ljava/util/Set;Lmtr/data/TransportMode;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;Lmtr/data/Rail;J)V",
+            remap = false,
             at = @At(value = "INVOKE",
                     target = "Ljava/util/Set;add(Ljava/lang/Object;)Z",
                     ordinal = 0,

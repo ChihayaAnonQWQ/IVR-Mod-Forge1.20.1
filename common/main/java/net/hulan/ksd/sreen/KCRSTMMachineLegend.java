@@ -7,7 +7,7 @@ import net.hulan.ksd.data.SingleTicketSystem;
 import net.hulan.ksd.data.KSDRoute;
 import net.hulan.ksd.utils.RailDataUtilities;
 import net.hulan.ksd.utils.RenderUtilities;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.util.Mth;
 
@@ -31,8 +31,11 @@ public class KCRSTMMachineLegend implements WidgetMapper, SelectableMapper, GuiE
         this.ticketMachineScreen = ticketMachineScreen;
     }
 
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-        Gui.fill(matrices, x, y, x + width, y + height, ARGB_WHITE);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        final PoseStack matrices = guiGraphics.pose();
+        guiGraphics.fill(x, y, x + width, y + height, ARGB_WHITE);
+        // Flush the batched panel fill before the raw vertex drawing below.
+        guiGraphics.flush();
         RenderUtilities renderUtilities = RenderUtilities.getInstance();
         // 逐行绘制（跳过已滚出的行，超出面板底部的行不画）
         int startRow = (int) (scrollOffset / ROW_HEIGHT);

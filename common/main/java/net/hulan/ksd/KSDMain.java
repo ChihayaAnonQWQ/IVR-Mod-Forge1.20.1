@@ -122,7 +122,7 @@ public class KSDMain implements KSDBlocks, KSDItems, KSDCreativeModTabs, KSDPack
                 return false;
             }
             if (entry.getValue() <= 0) {
-                KSDRailwayData railwayData = KSDRailwayData.getInstance(player.getLevel());
+                KSDRailwayData railwayData = KSDRailwayData.getInstance(player.level());
                 if (railwayData != null) {
                     railwayData.onPlayerJoin(player);
                 }
@@ -132,7 +132,7 @@ public class KSDMain implements KSDBlocks, KSDItems, KSDCreativeModTabs, KSDPack
             return false;
         }));
         mtr.Registry.registerPlayerJoinEvent((player) -> {
-            KSDRailwayData ksdRailwayData = KSDRailwayData.getInstance(player.getLevel());
+            KSDRailwayData ksdRailwayData = KSDRailwayData.getInstance(player.level());
             if (ksdRailwayData != null) {
                 // Wait until the client has finished entering the world, then send one snapshot.
                 pendingInitialSync.put(player.getUUID(), 5);

@@ -61,6 +61,8 @@ public abstract class Utilities {
         } else if (originVersion.equals("1.19.3")
                 || originVersion.equals("1.19.4")) {
             return "1_19_4";
+        } else if (originVersion.startsWith("1.20")) {
+            return "1_20_1";
         }
         return "1_18_2";
     }

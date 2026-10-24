@@ -31,7 +31,7 @@ public abstract class NPC extends IVRNPC {
     public abstract String getRole();
 
     protected @NotNull InteractionResult mobInteract(@NotNull Player player, @NotNull InteractionHand hand) {
-        if (hand == InteractionHand.MAIN_HAND && level.isClientSide) {
+        if (hand == InteractionHand.MAIN_HAND && level().isClientSide) {
             KSDPacketClient.sendNPCInteraction(this);
             return InteractionResult.sidedSuccess(true);
         }

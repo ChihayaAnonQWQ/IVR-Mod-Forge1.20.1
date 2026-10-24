@@ -12,6 +12,7 @@ import net.hulan.ksd.data.KCRTicketSystem;
 import net.hulan.ksd.data.KSDRailwayData;
 import net.hulan.ksd.data.KSDStation;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
@@ -52,11 +53,11 @@ public class FareAdjustmentsScreen extends ScreenMapper implements KSDGui {
         addDrawableChild(buttonOpenFCFareAdjustmentScreen);
     }
 
-    public void render(@NotNull PoseStack matrices, int mouseX, int mouseY, float delta) {
-        renderBackground(matrices);
-        KSDGui.renderBg(matrices, width, height, PANEL_WIDTH, PANEL_HEIGHT);
-        drawCenteredString(matrices, Minecraft.getInstance().font, title, width / 2, height / 2 - PANEL_HEIGHT / 2 + 7, IGui.ARGB_WHITE);
-        super.render(matrices, mouseX, mouseY, delta);
+    public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        renderBackground(guiGraphics);
+        KSDGui.renderBg(guiGraphics, width, height, PANEL_WIDTH, PANEL_HEIGHT);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, title, width / 2, height / 2 - PANEL_HEIGHT / 2 + 7, IGui.ARGB_WHITE);
+        super.render(guiGraphics, mouseX, mouseY, delta);
     }
 
     public boolean isPauseScreen() {

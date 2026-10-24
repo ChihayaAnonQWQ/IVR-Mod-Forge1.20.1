@@ -54,116 +54,115 @@ public class RenderKCRPSDAPGDoor<T extends BlockPSDAPGDoorBase.TileEntityPSDAPGD
         Level world = entity.getLevel();
         if (world != null) {
             BlockPos pos = entity.getBlockPos();
-            if (!(Boolean)IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.TEMP)) {
-                Direction facing = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.FACING);
-                boolean side = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.SIDE) == EnumSide.RIGHT;
-                boolean half = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.HALF) == DoubleBlockHalf.UPPER;
-                boolean end = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.END);
-                boolean unlocked = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.UNLOCKED);
-                float open = Math.min(entity.getOpen(MTRClient.getLastFrameDuration()), type >= 3 ? 0.75F : 1.0F);
-                StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
-                storedMatrixTransformations.add((matricesNew) -> {
-                    matricesNew.translate(0.5D + (double)entity.getBlockPos().getX(), entity.getBlockPos().getY(), 0.5D + (double)entity.getBlockPos().getZ());
-                    UtilitiesClient.rotateYDegrees(matricesNew, -facing.toYRot());
-                    UtilitiesClient.rotateXDegrees(matricesNew, 180.0F);
-                });
-                StoredMatrixTransformations storedMatrixTransformationsLight = storedMatrixTransformations.copy();
-                switch(type) {
-                    case 0:
-                    case 1:
-                        if (half) {
-                            RenderTrains.scheduleRender(new ResourceLocation(String.format("mtr:textures/block/light_%s.png", open > 0.0F ? "on" : "off")), false, open > 0.0F ? RenderTrains.QueuedRenderLayer.LIGHT : RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
+            // MTR 3 removed BlockPSDAPGDoorBase.TEMP; render the door unconditionally (upstream skipped when TEMP was true).
+            Direction facing = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.FACING);
+            boolean side = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.SIDE) == EnumSide.RIGHT;
+            boolean half = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.HALF) == DoubleBlockHalf.UPPER;
+            boolean end = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.END);
+            boolean unlocked = IBlock.getStatePropertySafe(world, pos, BlockPSDAPGDoorBase.UNLOCKED);
+            float open = Math.min(entity.getOpen(MTRClient.getLastFrameDuration()), type >= 3 ? 0.75F : 1.0F);
+            StoredMatrixTransformations storedMatrixTransformations = new StoredMatrixTransformations();
+            storedMatrixTransformations.add((matricesNew) -> {
+                matricesNew.translate(0.5D + (double)entity.getBlockPos().getX(), entity.getBlockPos().getY(), 0.5D + (double)entity.getBlockPos().getZ());
+                UtilitiesClient.rotateYDegrees(matricesNew, -facing.toYRot());
+                UtilitiesClient.rotateXDegrees(matricesNew, 180.0F);
+            });
+            StoredMatrixTransformations storedMatrixTransformationsLight = storedMatrixTransformations.copy();
+            switch(type) {
+                case 0:
+                case 1:
+                    if (half) {
+                        RenderTrains.scheduleRender(new ResourceLocation(String.format("mtr:textures/block/light_%s.png", open > 0.0F ? "on" : "off")), false, open > 0.0F ? RenderTrains.QueuedRenderLayer.LIGHT : RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
+                            storedMatrixTransformationsLight.transform(matricesNew);
+                            (side ? MODEL_PSD_LIGHT_RIGHT : MODEL_PSD_LIGHT_LEFT).renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+                            matricesNew.popPose();
+                        });
+                    }
+                    if (end) {
+                        RenderTrains.scheduleRender(new ResourceLocation(String.format("%s:textures/block/%s" + "psd_door_end_%s_%s_2_%s.png", type == 1 ? "ivr" : "mtr", this.type == 1 ? "kcr_" : "", half ? "top" : "bottom", side ? "right" : "left", this.type == 1 ? "2" : "1")), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
+                            storedMatrixTransformationsLight.transform(matricesNew);
+                            matricesNew.translate(open / 2.0F * (float)(side ? -1 : 1), 0.0D, 0.0D);
+                            (side ? MODEL_PSD_END_RIGHT_2 : MODEL_PSD_END_LEFT_2).renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+                            matricesNew.popPose();
+                        });
+                    }
+                    break;
+                case 2:
+                    if (half) {
+                        Block block = world.getBlockState(pos.relative(side ? facing.getClockWise() : facing.getCounterClockWise())).getBlock();
+                        if (block instanceof BlockKCRAPGDoor || block instanceof BlockKCRAPGGlassEnd) {
+                            RenderTrains.scheduleRender(new ResourceLocation(String.format("ivr:textures/block/kcr_apg_door_light_%s.png", open > 0.0F ? "on" : "off")), false, open > 0.0F ? RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT : RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
                                 storedMatrixTransformationsLight.transform(matricesNew);
-                                (side ? MODEL_PSD_LIGHT_RIGHT : MODEL_PSD_LIGHT_LEFT).renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+                                matricesNew.translate(side ? -0.515625D : 0.515625D, 0.0D, 0.0D);
+                                matricesNew.scale(0.5F, 1.0F, 1.0F);
+                                MODEL_APG_LIGHT.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
                                 matricesNew.popPose();
                             });
                         }
-                        if (end) {
-                            RenderTrains.scheduleRender(new ResourceLocation(String.format("%s:textures/block/%s" + "psd_door_end_%s_%s_2_%s.png", type == 1 ? "ivr" : "mtr", this.type == 1 ? "kcr_" : "", half ? "top" : "bottom", side ? "right" : "left", this.type == 1 ? "2" : "1")), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
-                                storedMatrixTransformationsLight.transform(matricesNew);
-                                matricesNew.translate(open / 2.0F * (float)(side ? -1 : 1), 0.0D, 0.0D);
-                                (side ? MODEL_PSD_END_RIGHT_2 : MODEL_PSD_END_LEFT_2).renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
-                                matricesNew.popPose();
-                            });
-                        }
-                        break;
-                    case 2:
-                        if (half) {
-                            Block block = world.getBlockState(pos.relative(side ? facing.getClockWise() : facing.getCounterClockWise())).getBlock();
-                            if (block instanceof BlockKCRAPGDoor || block instanceof BlockKCRAPGGlassEnd) {
-                                RenderTrains.scheduleRender(new ResourceLocation(String.format("ivr:textures/block/kcr_apg_door_light_%s.png", open > 0.0F ? "on" : "off")), false, open > 0.0F ? RenderTrains.QueuedRenderLayer.LIGHT_TRANSLUCENT : RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
-                                    storedMatrixTransformationsLight.transform(matricesNew);
-                                    matricesNew.translate(side ? -0.515625D : 0.515625D, 0.0D, 0.0D);
-                                    matricesNew.scale(0.5F, 1.0F, 1.0F);
-                                    MODEL_APG_LIGHT.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
-                                    matricesNew.popPose();
-                                });
+                    }
+            }
+            storedMatrixTransformations.add((matricesNew) -> matricesNew.translate(open * (float)(side ? -1 : 1), 0.0D, 0.0D));
+            switch(this.type) {
+                case 0:
+                case 1:
+                    if (end) {
+                        RenderTrains.scheduleRender(new ResourceLocation(String.format("%s:textures/block/%s" + "psd_door_end_%s_%s_1_%s.png", this.type == 1 ? "ivr" : "mtr", this.type == 1 ? "kcr_" : "", half ? "top" : "bottom", side ? "right" : "left", this.type == 1 ? "2" : "1")), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
+                            storedMatrixTransformations.transform(matricesNew);
+                            (side ? MODEL_PSD_END_RIGHT_1 : MODEL_PSD_END_LEFT_1).renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+                            matricesNew.popPose();
+                        });
+                    } else {
+                        RenderTrains.scheduleRender(new ResourceLocation(String.format("ivr:textures/block/kcr_psd_door_%s_%s_%s.png", half ? "top" : "bottom", side ? "right" : "left", this.type == 1 ? "2" : "1")), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
+                            storedMatrixTransformations.transform(matricesNew);
+                            MODEL_PSD.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+                            matricesNew.popPose();
+                        });
+                    }
+                    if (half && !unlocked) {
+                        RenderTrains.scheduleRender(new ResourceLocation("ivr:textures/block/sign/door_not_in_use.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
+                            storedMatrixTransformations.transform(matricesNew);
+                            if (end) {
+                                matricesNew.translate(side ? 0.25D : -0.25D, 0.0D, 0.0D);
                             }
-                        }
-                }
-                storedMatrixTransformations.add((matricesNew) -> matricesNew.translate(open * (float)(side ? -1 : 1), 0.0D, 0.0D));
-                switch(this.type) {
-                    case 0:
-                    case 1:
-                        if (end) {
-                            RenderTrains.scheduleRender(new ResourceLocation(String.format("%s:textures/block/%s" + "psd_door_end_%s_%s_1_%s.png", this.type == 1 ? "ivr" : "mtr", this.type == 1 ? "kcr_" : "", half ? "top" : "bottom", side ? "right" : "left", this.type == 1 ? "2" : "1")), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
-                                storedMatrixTransformations.transform(matricesNew);
-                                (side ? MODEL_PSD_END_RIGHT_1 : MODEL_PSD_END_LEFT_1).renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
-                                matricesNew.popPose();
-                            });
-                        } else {
-                            RenderTrains.scheduleRender(new ResourceLocation(String.format("ivr:textures/block/kcr_psd_door_%s_%s_%s.png", half ? "top" : "bottom", side ? "right" : "left", this.type == 1 ? "2" : "1")), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
-                                storedMatrixTransformations.transform(matricesNew);
-                                MODEL_PSD.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
-                                matricesNew.popPose();
-                            });
-                        }
-                        if (half && !unlocked) {
-                            RenderTrains.scheduleRender(new ResourceLocation("ivr:textures/block/sign/door_not_in_use.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
-                                storedMatrixTransformations.transform(matricesNew);
-                                if (end) {
-                                    matricesNew.translate(side ? 0.25D : -0.25D, 0.0D, 0.0D);
-                                }
 
-                                MODEL_PSD_DOOR_LOCKED.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
-                                matricesNew.popPose();
-                            });
-                        }
-                        break;
-                    case 2:
-                        RenderTrains.scheduleRender(new ResourceLocation(String.format("ivr:textures/block/kcr_apg_door_%s_%s.png", half ? "top" : "bottom", side ? "right" : "left")), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
-                            storedMatrixTransformations.transform(matricesNew);
-                            (half ? MODEL_APG_TOP : MODEL_APG_BOTTOM).renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+                            MODEL_PSD_DOOR_LOCKED.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
                             matricesNew.popPose();
                         });
-                        if (half && !unlocked) {
-                            RenderTrains.scheduleRender(new ResourceLocation("ivr:textures/block/sign/door_not_in_use.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
-                                storedMatrixTransformations.transform(matricesNew);
-                                MODEL_APG_DOOR_LOCKED.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
-                                matricesNew.popPose();
-                            });
-                        }
-                        break;
-                    case 4:
-                        if (IBlock.getStatePropertySafe(world, pos, ITripleBlock.ODD)) {
-                            break;
-                        }
-                        storedMatrixTransformations.add((matricesNew) -> matricesNew.translate(side ? 0.5D : -0.5D, 0.0D, 0.0D));
-                    case 3:
-                        RenderTrains.scheduleRender(new ResourceLocation(String.format("mtr:textures/block/lift_door_%s_%s_1.png", half ? "top" : "bottom", side ? "right" : "left")), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
+                    }
+                    break;
+                case 2:
+                    RenderTrains.scheduleRender(new ResourceLocation(String.format("ivr:textures/block/kcr_apg_door_%s_%s.png", half ? "top" : "bottom", side ? "right" : "left")), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
+                        storedMatrixTransformations.transform(matricesNew);
+                        (half ? MODEL_APG_TOP : MODEL_APG_BOTTOM).renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+                        matricesNew.popPose();
+                    });
+                    if (half && !unlocked) {
+                        RenderTrains.scheduleRender(new ResourceLocation("ivr:textures/block/sign/door_not_in_use.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
                             storedMatrixTransformations.transform(matricesNew);
-                            (side ? MODEL_LIFT_RIGHT : MODEL_LIFT_LEFT).renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+                            MODEL_APG_DOOR_LOCKED.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
                             matricesNew.popPose();
                         });
-                        if (half && !unlocked) {
-                            RenderTrains.scheduleRender(new ResourceLocation("ivr:textures/block/sign/door_not_in_use.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
-                                storedMatrixTransformations.transform(matricesNew);
-                                matricesNew.translate(side ? 0.125D : -0.125D, 0.0D, 0.0D);
-                                MODEL_PSD_DOOR_LOCKED.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
-                                matricesNew.popPose();
-                            });
-                        }
-                }
+                    }
+                    break;
+                case 4:
+                    if (IBlock.getStatePropertySafe(world, pos, ITripleBlock.ODD)) {
+                        break;
+                    }
+                    storedMatrixTransformations.add((matricesNew) -> matricesNew.translate(side ? 0.5D : -0.5D, 0.0D, 0.0D));
+                case 3:
+                    RenderTrains.scheduleRender(new ResourceLocation(String.format("mtr:textures/block/lift_door_%s_%s_1.png", half ? "top" : "bottom", side ? "right" : "left")), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
+                        storedMatrixTransformations.transform(matricesNew);
+                        (side ? MODEL_LIFT_RIGHT : MODEL_LIFT_LEFT).renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+                        matricesNew.popPose();
+                    });
+                    if (half && !unlocked) {
+                        RenderTrains.scheduleRender(new ResourceLocation("ivr:textures/block/sign/door_not_in_use.png"), false, RenderTrains.QueuedRenderLayer.EXTERIOR, (matricesNew, vertexConsumer) -> {
+                            storedMatrixTransformations.transform(matricesNew);
+                            matricesNew.translate(side ? 0.125D : -0.125D, 0.0D, 0.0D);
+                            MODEL_PSD_DOOR_LOCKED.renderToBuffer(matricesNew, vertexConsumer, light, overlay, 1.0F, 1.0F, 1.0F, 1.0F);
+                            matricesNew.popPose();
+                        });
+                    }
             }
         }
     }

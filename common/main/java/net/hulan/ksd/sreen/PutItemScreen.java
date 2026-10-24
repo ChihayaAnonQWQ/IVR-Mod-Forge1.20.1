@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.data.IGui;
 import mtr.mappings.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
@@ -67,37 +67,40 @@ public class PutItemScreen extends ScreenMapper implements IGui {
         }
     }
 
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float delta) {
-        renderBackground(poseStack);
-        Gui.fill(poseStack, left, top, left + PANEL_WIDTH, top + PANEL_HEIGHT, 0xFFC6C6C6);
-        Gui.fill(poseStack, left + 4, top + 4, left + PANEL_WIDTH - 4, top + PANEL_HEIGHT - 4, 0xFF4A4A4A);
-        drawCenteredString(poseStack, Minecraft.getInstance().font, getTitleText(), left + PANEL_WIDTH / 2, top + 7, ARGB_WHITE);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        renderBackground(guiGraphics);
+        guiGraphics.fill(left, top, left + PANEL_WIDTH, top + PANEL_HEIGHT, 0xFFC6C6C6);
+        guiGraphics.fill(left + 4, top + 4, left + PANEL_WIDTH - 4, top + PANEL_HEIGHT - 4, 0xFF4A4A4A);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, getTitleText(), left + PANEL_WIDTH / 2, top + 7, ARGB_WHITE);
 
         int targetX = left + (PANEL_WIDTH - TARGET_SLOT_SIZE) / 2;
         int targetY = top + 18;
-        Gui.fill(poseStack, targetX, targetY, targetX + TARGET_SLOT_SIZE, targetY + TARGET_SLOT_SIZE, 0xFF8B8B8B);
-        Gui.fill(poseStack, targetX + 1, targetY + 1, targetX + TARGET_SLOT_SIZE - 1, targetY + TARGET_SLOT_SIZE - 1, 0xFF373737);
+        guiGraphics.fill(targetX, targetY, targetX + TARGET_SLOT_SIZE, targetY + TARGET_SLOT_SIZE, 0xFF8B8B8B);
+        guiGraphics.fill(targetX + 1, targetY + 1, targetX + TARGET_SLOT_SIZE - 1, targetY + TARGET_SLOT_SIZE - 1, 0xFF373737);
         if (isTargetMouseOver(mouseX, mouseY)) {
-            Gui.fill(poseStack, targetX + 1, targetY + 1, targetX + TARGET_SLOT_SIZE - 1, targetY + TARGET_SLOT_SIZE - 1, 0x60FFFFFF);
+            guiGraphics.fill(targetX + 1, targetY + 1, targetX + TARGET_SLOT_SIZE - 1, targetY + TARGET_SLOT_SIZE - 1, 0x60FFFFFF);
         }
         Item previewItem = resolveItemKey();
         ItemStack targetPreview = placedStack.isEmpty() && previewItem != null ? new ItemStack(previewItem) : placedStack;
         if (!targetPreview.isEmpty()) {
-            net.hulan.ksd.utils.Utilities.getInstance().renderGuiItem(poseStack, Minecraft.getInstance().getItemRenderer(),
+            // Flush the batched slot fills before the raw item render so the item stays on top.
+            guiGraphics.flush();
+            net.hulan.ksd.utils.Utilities.getInstance().renderGuiItem(guiGraphics.pose(), Minecraft.getInstance().getItemRenderer(),
                     Minecraft.getInstance().font, targetPreview, targetX + 2, targetY + 2);
         }
 
         for (PutItemSlot slot : slots) {
-            slot.render(poseStack, mouseX, mouseY, delta);
+            slot.render(guiGraphics, mouseX, mouseY, delta);
         }
-        super.render(poseStack, mouseX, mouseY, delta);
+        super.render(guiGraphics, mouseX, mouseY, delta);
 
         PutItemSlot hovered = getSlotAt(mouseX, mouseY);
         if (hovered != null && !hovered.getItemStack().isEmpty()) {
-            renderTooltip(poseStack, hovered.getItemStack(), mouseX, mouseY);
+            guiGraphics.renderTooltip(font, hovered.getItemStack(), mouseX, mouseY);
         }
         if (!carriedStack.isEmpty()) {
-            net.hulan.ksd.utils.Utilities.getInstance().renderGuiItem(poseStack, Minecraft.getInstance().getItemRenderer(),
+            guiGraphics.flush();
+            net.hulan.ksd.utils.Utilities.getInstance().renderGuiItem(guiGraphics.pose(), Minecraft.getInstance().getItemRenderer(),
                     Minecraft.getInstance().font, carriedStack, mouseX - 8, mouseY - 8);
         }
     }
@@ -162,7 +165,7 @@ public class PutItemScreen extends ScreenMapper implements IGui {
             slot.setItemStack(carriedStack);
             carriedStack = ItemStack.EMPTY;
             selectedInventoryIndex = -1;
-        } else if (ItemStack.isSame(carriedStack, slotStack) && ItemStack.tagMatches(carriedStack, slotStack)) {
+        } else if (ItemStack.isSameItemSameTags(carriedStack, slotStack)) {
             int transferred = Math.min(carriedStack.getCount(), slotStack.getMaxStackSize() - slotStack.getCount());
             slotStack.grow(transferred);
             carriedStack.shrink(transferred);
@@ -237,7 +240,7 @@ public class PutItemScreen extends ScreenMapper implements IGui {
         }
         for (PutItemSlot slot : slots) {
             ItemStack slotStack = slot.getItemStack();
-            if (!slotStack.isEmpty() && ItemStack.isSame(stack, slotStack) && ItemStack.tagMatches(stack, slotStack)) {
+            if (!slotStack.isEmpty() && ItemStack.isSameItemSameTags(stack, slotStack)) {
                 int transferred = Math.min(stack.getCount(), slotStack.getMaxStackSize() - slotStack.getCount());
                 slotStack.grow(transferred);
                 stack.shrink(transferred);

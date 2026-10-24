@@ -10,6 +10,7 @@ import net.hulan.ksd.data.*;
 import net.hulan.ksd.packet.KSDPacketClient;
 import net.hulan.ksd.utils.RailDataUtilities;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
@@ -51,11 +52,11 @@ public class OctopusFareAdjustmentScreen extends PaymentScreen implements IGui {
     public void tick() {
     }
 
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-        super.render(matrices, mouseX, mouseY, delta);
-        drawCenteredString(matrices, Minecraft.getInstance().font, getCurrentText(), width / 2, height / 2 - 60, ARGB_WHITE);
-        drawCenteredString(matrices, Minecraft.getInstance().font, getDestinationText(), width / 2, height / 2 - 40, ARGB_WHITE);
-        drawCenteredString(matrices, Minecraft.getInstance().font, getExpiredText(), width / 2, height / 2 - 20, ARGB_WHITE);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        super.render(guiGraphics, mouseX, mouseY, delta);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, getCurrentText(), width / 2, height / 2 - 60, ARGB_WHITE);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, getDestinationText(), width / 2, height / 2 - 40, ARGB_WHITE);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, getExpiredText(), width / 2, height / 2 - 20, ARGB_WHITE);
     }
 
     void countTotal() {

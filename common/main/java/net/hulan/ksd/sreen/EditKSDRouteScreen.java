@@ -16,6 +16,7 @@ import net.hulan.ksd.data.KSDStation;
 import net.hulan.ksd.utils.Utilities;
 import net.hulan.ksd.packet.KSDPacket;
 import net.hulan.ksd.packet.KSDPacketClient;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
@@ -101,17 +102,17 @@ public class EditKSDRouteScreen extends EditNameColorScreenBase<KSDRoute> implem
         textFieldFCCar.tick();
     }
 
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         try {
-            renderBackground(matrices);
-            renderTextFields(matrices);
+            renderBackground(guiGraphics);
+            renderTextFields(guiGraphics);
             if (textFieldLightRailRouteNumber.visible) {
-                drawString(matrices, font, lightRailRouteNumberText, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE);
+                guiGraphics.drawString(font, lightRailRouteNumberText, SQUARE_SIZE, SQUARE_SIZE * 7 + TEXT_PADDING, ARGB_WHITE);
             }
             if (routeType.equals(Utilities.KCR) && buttonHasFCService.selected()) {
-                drawString(matrices, font, fcCarNumberText, width / 2 + SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE);
+                guiGraphics.drawString(font, fcCarNumberText, width / 2 + SQUARE_SIZE, SQUARE_SIZE * 4 + TEXT_PADDING, ARGB_WHITE);
             }
-            super.render(matrices, mouseX, mouseY, delta);
+            super.render(guiGraphics, mouseX, mouseY, delta);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -59,12 +59,12 @@ public class IVRPacketTrainDataGuiServer extends PacketTrainDataBase implements 
         }
         final boolean luminance = packet.readBoolean();
         minecraftServer.execute(() -> {
-            final BlockEntity entity = player.level.getBlockEntity(signPos);
+            final BlockEntity entity = player.level().getBlockEntity(signPos);
             if (entity instanceof BlockClassicalSign.TileEntityClassicalSign) {
                 setTileEntityDataAndWriteUpdate(player, entity2 -> entity2.setData(selectedIds, signIds, luminance), (BlockClassicalSign.TileEntityClassicalSign) entity);
             } else if (entity instanceof BlockKCRRouteSignBase.TileEntityKCRRouteSignBase) {
                 final long platformId = selectedIds.isEmpty() ? 0 : (long) selectedIds.toArray()[0];
-                final BlockEntity entityAbove = player.level.getBlockEntity(signPos.above());
+                final BlockEntity entityAbove = player.level().getBlockEntity(signPos.above());
                 if (entityAbove instanceof BlockKCRRouteSignBase.TileEntityKCRRouteSignBase) {
                     setTileEntityDataAndWriteUpdate(player, entity2 -> entity2.setPlatformId(platformId), ((BlockKCRRouteSignBase.TileEntityKCRRouteSignBase) entityAbove), (BlockKCRRouteSignBase.TileEntityKCRRouteSignBase) entity);
                 } else {
@@ -92,7 +92,7 @@ public class IVRPacketTrainDataGuiServer extends PacketTrainDataBase implements 
         final String[] signId2 = new String[]{packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH)};
         final boolean luminance = packet.readBoolean();
         minecraftServer.execute(() -> {
-            final BlockEntity entity = player.level.getBlockEntity(signPos);
+            final BlockEntity entity = player.level().getBlockEntity(signPos);
             if (entity instanceof BlockClassicalSign.TileEntityClassicalSign1Odd) {
                 setTileEntityDataAndWriteUpdate(player, entity2 -> entity2.setData(selectedIds1, signId1, selectedIds2, signId2, luminance), (BlockClassicalSign.TileEntityClassicalSign1Odd) entity);
             }
@@ -115,12 +115,12 @@ public class IVRPacketTrainDataGuiServer extends PacketTrainDataBase implements 
         }
         final boolean luminance = packet.readBoolean();
         minecraftServer.execute(() -> {
-            BlockEntity entity = player.level.getBlockEntity(signPos);
+            BlockEntity entity = player.level().getBlockEntity(signPos);
             if (entity instanceof BlockModernSign.TileEntityModernSign) {
                 setTileEntityDataAndWriteUpdate(player, (entity2) -> entity2.setData(selectedIds, signIds, luminance), (BlockModernSign.TileEntityModernSign)entity);
             } else if (entity instanceof BlockKCRRouteSignBase.TileEntityKCRRouteSignBase) {
                 long platformId = selectedIds.isEmpty() ? 0L : (Long)selectedIds.toArray()[0];
-                BlockEntity entityAbove = player.level.getBlockEntity(signPos.above());
+                BlockEntity entityAbove = player.level().getBlockEntity(signPos.above());
                 if (entityAbove instanceof BlockKCRRouteSignBase.TileEntityKCRRouteSignBase) {
                     setTileEntityDataAndWriteUpdate(player, (entity2) -> entity2.setPlatformId(platformId), (BlockKCRRouteSignBase.TileEntityKCRRouteSignBase)entityAbove, (BlockKCRRouteSignBase.TileEntityKCRRouteSignBase)entity);
                 } else {
@@ -148,7 +148,7 @@ public class IVRPacketTrainDataGuiServer extends PacketTrainDataBase implements 
         final String[] signId2 = new String[]{packet.readUtf(SerializedDataBase.PACKET_STRING_READ_LENGTH)};
         final boolean luminance = packet.readBoolean();
         minecraftServer.execute(() -> {
-            final BlockEntity entity = player.level.getBlockEntity(signPos);
+            final BlockEntity entity = player.level().getBlockEntity(signPos);
             if (entity instanceof BlockModernSign.TileEntityModernSign1Odd) {
                 setTileEntityDataAndWriteUpdate(player, entity2 -> entity2.setData(selectedIds1, signId1, selectedIds2, signId2, luminance), (BlockModernSign.TileEntityModernSign1Odd) entity);
             }
@@ -157,7 +157,7 @@ public class IVRPacketTrainDataGuiServer extends PacketTrainDataBase implements 
 
     @SafeVarargs
     private static <T extends BlockEntityMapper> void setTileEntityDataAndWriteUpdate(ServerPlayer player, Consumer<T> setData, T... entities) {
-        final RailwayData railwayData = RailwayData.getInstance(player.level);
+        final RailwayData railwayData = RailwayData.getInstance(player.level());
         if (railwayData != null && entities.length > 0) {
             final CompoundTag compoundTagOld = new CompoundTag();
             entities[0].writeCompoundTag(compoundTagOld);

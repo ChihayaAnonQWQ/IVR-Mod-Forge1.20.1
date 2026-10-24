@@ -16,7 +16,7 @@ import net.hulan.ksd.data.KSDAreaBase;
 import net.hulan.ksd.data.KSDStation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -24,6 +24,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.util.Tuple;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 
 import java.util.ConcurrentModificationException;
@@ -80,7 +81,10 @@ public class KSDWidgetMap implements WidgetMapper, SelectableMapper, GuiEventLis
         scale = 1.0F;
     }
 
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        PoseStack matrices = guiGraphics.pose();
+        // Flush any batched GUI content before drawing the map through raw vertex buffers.
+        guiGraphics.flush();
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder buffer = tesselator.getBuilder();
         UtilitiesClient.beginDrawingRectangle(buffer);
@@ -94,7 +98,9 @@ public class KSDWidgetMap implements WidgetMapper, SelectableMapper, GuiEventLis
                     for(int j = topLeft.getB(); j >= bottomRight.getB(); j -= increment) {
                         int color;
                         if (world != null) {
-                            color = divideColorRGB(world.getBlockState(RailwayData.newBlockPos(i, j, player.getZ())).getBlock().defaultMaterialColor().col);
+                            BlockPos blockPos = RailwayData.newBlockPos(i, j, player.getZ());
+                            BlockState blockState = world.getBlockState(blockPos);
+                            color = divideColorRGB(blockState.getMapColor(world, blockPos).col);
                             drawRectangleFromWorldCords(buffer, i, j, i + increment, j - increment, ARGB_BLACK | color);
                         }
                     }
@@ -134,13 +140,13 @@ public class KSDWidgetMap implements WidgetMapper, SelectableMapper, GuiEventLis
                 RenderSystem.disableBlend();
                 UtilitiesClient.finishDrawingRectangle();
                 if (mapState == MapState.EDITING_AREA) {
-                    Gui.drawString(matrices, textRenderer, Text.translatable("gui.mtr.edit_area").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
+                    guiGraphics.drawString(textRenderer, Text.translatable("gui.mtr.edit_area").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
                 } else if (mapState == MapState.EDITING_ROUTE) {
-                    Gui.drawString(matrices, textRenderer, Text.translatable("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
+                    guiGraphics.drawString(textRenderer, Text.translatable("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
                 }
                 if (scale >= (double) 8.0F) {
                     try {
-                        KSDClientData.DATA_CACHE.getPosToPlatforms(transportMode).forEach((platformPos, platforms) -> drawSavedRail(matrices, platformPos, platforms));
+                        KSDClientData.DATA_CACHE.getPosToPlatforms(transportMode).forEach((platformPos, platforms) -> drawSavedRail(guiGraphics, platformPos, platforms));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -155,7 +161,7 @@ public class KSDWidgetMap implements WidgetMapper, SelectableMapper, GuiEventLis
                 }
                 immediate.endBatch();
                 String mousePosText = "X-Y" + String.format("(%s, %s)", RailwayData.round(mouseWorldPos.getA(), 1), RailwayData.round(mouseWorldPos.getB(), 1));
-                Gui.drawString(matrices, this.textRenderer, mousePosText, this.x + this.width - 6 - this.textRenderer.width(mousePosText), this.y + 6, -1);
+                guiGraphics.drawString(this.textRenderer, mousePosText, this.x + this.width - 6 - this.textRenderer.width(mousePosText), this.y + 6, -1);
             }
             case X_Z -> {
                 Tuple<Integer, Integer> topLeft = cordsToWorldPos(0, 0);
@@ -165,7 +171,9 @@ public class KSDWidgetMap implements WidgetMapper, SelectableMapper, GuiEventLis
                     for(int j = topLeft.getB(); j <= bottomRight.getB(); j += increment) {
                         int color;
                         if (world != null) {
-                            color = divideColorRGB(world.getBlockState(RailwayData.newBlockPos(i, world.getHeight(Heightmap.Types.MOTION_BLOCKING, i, j) - 1, j)).getBlock().defaultMaterialColor().col);
+                            BlockPos blockPos = RailwayData.newBlockPos(i, world.getHeight(Heightmap.Types.MOTION_BLOCKING, i, j) - 1, j);
+                            BlockState blockState = world.getBlockState(blockPos);
+                            color = divideColorRGB(blockState.getMapColor(world, blockPos).col);
                             drawRectangleFromWorldCords(buffer, i, j, i + increment, j + increment, ARGB_BLACK | color);
                         }
                     }
@@ -204,13 +212,13 @@ public class KSDWidgetMap implements WidgetMapper, SelectableMapper, GuiEventLis
                 RenderSystem.disableBlend();
                 UtilitiesClient.finishDrawingRectangle();
                 if (mapState == MapState.EDITING_AREA) {
-                    Gui.drawString(matrices, textRenderer, Text.translatable("gui.mtr.edit_area").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
+                    guiGraphics.drawString(textRenderer, Text.translatable("gui.mtr.edit_area").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
                 } else if (mapState == MapState.EDITING_ROUTE) {
-                    Gui.drawString(matrices, textRenderer, Text.translatable("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
+                    guiGraphics.drawString(textRenderer, Text.translatable("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
                 }
                 if (scale >= (double) 8.0F) {
                     try {
-                        KSDClientData.DATA_CACHE.getPosToPlatforms(transportMode).forEach((platformPos, platforms) -> this.drawSavedRail(matrices, platformPos, platforms));
+                        KSDClientData.DATA_CACHE.getPosToPlatforms(transportMode).forEach((platformPos, platforms) -> this.drawSavedRail(guiGraphics, platformPos, platforms));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -225,7 +233,7 @@ public class KSDWidgetMap implements WidgetMapper, SelectableMapper, GuiEventLis
                 }
                 immediate.endBatch();
                 String mousePosText = "X-Z" + String.format("(%s, %s)", RailwayData.round(mouseWorldPos.getA(), 1), RailwayData.round(mouseWorldPos.getB(), 1));
-                Gui.drawString(matrices, this.textRenderer, mousePosText, this.x + this.width - 6 - this.textRenderer.width(mousePosText), this.y + 6, -1);
+                guiGraphics.drawString(this.textRenderer, mousePosText, this.x + this.width - 6 - this.textRenderer.width(mousePosText), this.y + 6, -1);
             }
             case Z_Y -> {
                 Tuple<Integer, Integer> topLeft = cordsToWorldPos(0, 0);
@@ -235,7 +243,9 @@ public class KSDWidgetMap implements WidgetMapper, SelectableMapper, GuiEventLis
                     for(int j = topLeft.getB(); j >= bottomRight.getB(); j -= increment) {
                         int color;
                         if (world != null) {
-                            color = divideColorRGB(world.getBlockState(RailwayData.newBlockPos(player.getX(), j, i)).getBlock().defaultMaterialColor().col);
+                            BlockPos blockPos = RailwayData.newBlockPos(player.getX(), j, i);
+                            BlockState blockState = world.getBlockState(blockPos);
+                            color = divideColorRGB(blockState.getMapColor(world, blockPos).col);
                             drawRectangleFromWorldCords(buffer, i, j, i + increment, j - increment, ARGB_BLACK | color);
                         }
                     }
@@ -274,13 +284,13 @@ public class KSDWidgetMap implements WidgetMapper, SelectableMapper, GuiEventLis
                 RenderSystem.disableBlend();
                 UtilitiesClient.finishDrawingRectangle();
                 if (mapState == MapState.EDITING_AREA) {
-                    Gui.drawString(matrices, textRenderer, Text.translatable("gui.mtr.edit_area").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
+                    guiGraphics.drawString(textRenderer, Text.translatable("gui.mtr.edit_area").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
                 } else if (mapState == MapState.EDITING_ROUTE) {
-                    Gui.drawString(matrices, textRenderer, Text.translatable("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
+                    guiGraphics.drawString(textRenderer, Text.translatable("gui.mtr.edit_route").getString(), x + TEXT_PADDING, y + TEXT_PADDING, ARGB_WHITE);
                 }
                 if (scale >= (double) 8.0F) {
                     try {
-                        KSDClientData.DATA_CACHE.getPosToPlatforms(transportMode).forEach((platformPos, platforms) -> drawSavedRail(matrices, platformPos, platforms));
+                        KSDClientData.DATA_CACHE.getPosToPlatforms(transportMode).forEach((platformPos, platforms) -> drawSavedRail(guiGraphics, platformPos, platforms));
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -295,7 +305,7 @@ public class KSDWidgetMap implements WidgetMapper, SelectableMapper, GuiEventLis
                 }
                 immediate.endBatch();
                 String mousePosText = "Z-Y" + String.format("(%s, %s)", RailwayData.round(mouseWorldPos.getA(), 1), RailwayData.round(mouseWorldPos.getB(), 1));
-                Gui.drawString(matrices, textRenderer, mousePosText, x + width - 6 - textRenderer.width(mousePosText), y + 6, -1);
+                guiGraphics.drawString(textRenderer, mousePosText, x + width - 6 - textRenderer.width(mousePosText), y + 6, -1);
             }
         }
     }
@@ -631,7 +641,7 @@ public class KSDWidgetMap implements WidgetMapper, SelectableMapper, GuiEventLis
         return areaBase.getCenter() != null && scale >= (double) (80.0F / (float)Math.max(Math.abs(areaBase.corner1.getX() - areaBase.corner2.getX()), Math.abs(areaBase.corner1.getZ() - areaBase.corner2.getZ())));
     }
 
-    private void drawSavedRail(PoseStack matrices, BlockPos savedRailPos, List<? extends SavedRailBase> savedRails) {
+    private void drawSavedRail(GuiGraphics guiGraphics, BlockPos savedRailPos, List<? extends SavedRailBase> savedRails) {
         int savedRailCount = savedRails.size();
         for(int i = 0; i < savedRailCount; ++i) {
             int finalI = i;
@@ -639,7 +649,7 @@ public class KSDWidgetMap implements WidgetMapper, SelectableMapper, GuiEventLis
                 case X_Y ->
                         drawFromWorldCords((double)savedRailPos.getX() + (double)0.5F,
                                 (double)savedRailPos.getY() + ((double)i - (double)0.5F) / (double)savedRailCount,
-                                (x1, y1) -> Gui.drawCenteredString(matrices,
+                                (x1, y1) -> guiGraphics.drawCenteredString(
                                         textRenderer,
                                         savedRails.get(finalI).name,
                                         x + x1.intValue(),
@@ -648,7 +658,7 @@ public class KSDWidgetMap implements WidgetMapper, SelectableMapper, GuiEventLis
                 case X_Z ->
                         drawFromWorldCords((double)savedRailPos.getX() + (double)0.5F,
                                 (double)savedRailPos.getZ() + ((double)i + (double)0.5F) / (double)savedRailCount,
-                                (x1, y1) -> Gui.drawCenteredString(matrices,
+                                (x1, y1) -> guiGraphics.drawCenteredString(
                                         textRenderer,
                                         savedRails.get(finalI).name,
                                         x + x1.intValue(),
@@ -657,7 +667,7 @@ public class KSDWidgetMap implements WidgetMapper, SelectableMapper, GuiEventLis
                 case Z_Y ->
                         drawFromWorldCords((double)savedRailPos.getZ() + (double)0.5F,
                                 (double)savedRailPos.getY() + ((double)i - (double)0.5F) / (double)savedRailCount,
-                                (x1, y1) -> Gui.drawCenteredString(matrices,
+                                (x1, y1) -> guiGraphics.drawCenteredString(
                                         textRenderer,
                                         savedRails.get(finalI).name,
                                         x + x1.intValue(),

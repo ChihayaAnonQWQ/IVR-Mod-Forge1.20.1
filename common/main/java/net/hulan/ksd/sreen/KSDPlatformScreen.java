@@ -12,6 +12,7 @@ import mtr.screen.WidgetBetterCheckbox;
 import net.hulan.ksd.utils.DataUtilities;
 import net.hulan.ksd.data.KSDPlatform;
 import net.hulan.ksd.packet.KSDPacketClient;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -48,10 +49,10 @@ public class KSDPlatformScreen extends SavedRailScreenBase<KSDPlatform> {
         setIsSpanishPlatform(savedRailBase.isSpanishPlatform);
     }
 
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-        super.render(matrices, mouseX, mouseY, delta);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        super.render(guiGraphics, mouseX, mouseY, delta);
         if (showScheduleControls) {
-            font.draw(matrices, DWELL_TIME_TEXT, 20.0F, 50.0F, -1);
+            guiGraphics.drawString(font, DWELL_TIME_TEXT, 20, 50, -1);
         }
     }
 

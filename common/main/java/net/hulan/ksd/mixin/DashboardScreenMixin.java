@@ -65,7 +65,7 @@ public class DashboardScreenMixin {
         editingKSDRoute.setPlatformIds((packet) -> KSDPacketClient.sendUpdate(KSDPacket.KSD_PACKET_UPDATE_ROUTE, packet));
     }
 
-    @ModifyArg(method = "onDelete",
+    @ModifyArg(method = "onDelete", remap = false,
             at = @At(value = "INVOKE",
                     target = "Lmtr/mappings/UtilitiesClient;setScreen(Lnet/minecraft/client/Minecraft;Lmtr/mappings/ScreenMapper;)V",
                     ordinal = 0),
@@ -79,7 +79,7 @@ public class DashboardScreenMixin {
         }, IGui.formatStationName(station.name), (DashboardScreen) (Object) this);
     }
 
-    @ModifyArg(method = "onDelete",
+    @ModifyArg(method = "onDelete", remap = false,
             at = @At(value = "INVOKE",
                     target = "Lmtr/mappings/UtilitiesClient;setScreen(Lnet/minecraft/client/Minecraft;Lmtr/mappings/ScreenMapper;)V",
                     ordinal = 1),
@@ -103,7 +103,7 @@ public class DashboardScreenMixin {
         editingKSDRoute.setPlatformIds((packet) -> KSDPacketClient.sendUpdate(KSDPacket.KSD_PACKET_UPDATE_ROUTE, packet));
     }
 
-    @Inject(method = "startEditingArea",
+    @Inject(method = "startEditingArea", remap = false,
             at = @At(value = "INVOKE",
                     target = "Lmtr/screen/DashboardScreen;toggleButtons()V"))
     private void startingEditingArea(AreaBase editingArea, boolean isNew, CallbackInfo ci) {
@@ -117,7 +117,7 @@ public class DashboardScreenMixin {
         editingKSDRoute = null;
     }
 
-    @Inject(method = "startEditingRoute",
+    @Inject(method = "startEditingRoute", remap = false,
             at = @At(value = "INVOKE",
                     target = "Lmtr/screen/DashboardScreen;toggleButtons()V"))
     private void startEditingRoute(Route editingRoute, boolean isNew, CallbackInfo ci) {
@@ -129,7 +129,7 @@ public class DashboardScreenMixin {
         }
     }
 
-    @Inject(method = "onDrawCorners",
+    @Inject(method = "onDrawCorners", remap = false,
             at = @At(value = "INVOKE",
                     target = "Lmtr/screen/DashboardScreen;toggleButtons()V"))
     private void onDrawCorners(Tuple<Integer, Integer> corner1, Tuple<Integer, Integer> corner2, CallbackInfo ci) {

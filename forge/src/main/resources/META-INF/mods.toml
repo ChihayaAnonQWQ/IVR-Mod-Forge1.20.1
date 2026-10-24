@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[36,)"
+loaderVersion = "[47,)"
 license = "MIT"
 
 [[mods]]
@@ -46,7 +46,7 @@ side = "BOTH"
 [[dependencies.ivr]]
 modId = "mtr"
 mandatory = true
-versionRange = "[1.0,)"
+versionRange = "[${mtr_version},1.20.1-4.0.0)"
 ordering = "AFTER"
 side = "BOTH"
 
@@ -74,6 +74,6 @@ side = "BOTH"
 [[dependencies.ksd]]
 modId = "mtr"
 mandatory = true
-versionRange = "[1.0,)"
+versionRange = "[${mtr_version},1.20.1-4.0.0)"
 ordering = "AFTER"
 side = "BOTH"

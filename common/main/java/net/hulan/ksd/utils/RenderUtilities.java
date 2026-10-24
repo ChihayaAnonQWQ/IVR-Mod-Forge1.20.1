@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import mtr.mappings.Text;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
 import net.minecraft.resources.ResourceLocation;
@@ -270,7 +271,13 @@ public abstract class RenderUtilities {
         matrices.pushPose();
         matrices.translate(x, y, 0);
         matrices.scale(scale, scale, 1.0F);
-        Minecraft.getInstance().font.draw(matrices, Text.literal(text).withStyle(FONT), 0, 0, color);
+        // 1.20.1 removed Font#draw(PoseStack, ...); draw through a GuiGraphics
+        // view that carries the caller's transform instead.
+        final Minecraft minecraft = Minecraft.getInstance();
+        final GuiGraphics guiGraphics = new GuiGraphics(minecraft, minecraft.renderBuffers().bufferSource());
+        guiGraphics.pose().mulPoseMatrix(matrices.last().pose());
+        guiGraphics.drawString(minecraft.font, Text.literal(text).withStyle(FONT), 0, 0, color, true);
+        guiGraphics.flush();
         matrices.popPose();
     }
 

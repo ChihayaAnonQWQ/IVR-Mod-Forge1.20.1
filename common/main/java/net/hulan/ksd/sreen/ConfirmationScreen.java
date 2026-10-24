@@ -6,6 +6,7 @@ import mtr.data.IGui;
 import mtr.mappings.ScreenMapper;
 import mtr.mappings.Text;
 import mtr.mappings.UtilitiesClient;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.MutableComponent;
 
@@ -34,11 +35,11 @@ public class ConfirmationScreen extends ScreenMapper implements IGui {
         addDrawableChild(buttonNo);
     }
 
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         try {
-            renderBackground(matrices);
-            super.render(matrices, mouseX, mouseY, delta);
-            drawCenteredString(matrices, font, text, width / 2, height / 2 - 40 + 6, ARGB_WHITE);
+            renderBackground(guiGraphics);
+            super.render(guiGraphics, mouseX, mouseY, delta);
+            guiGraphics.drawCenteredString(font, text, width / 2, height / 2 - 40 + 6, ARGB_WHITE);
         } catch (Exception e) {
             e.printStackTrace();
         }

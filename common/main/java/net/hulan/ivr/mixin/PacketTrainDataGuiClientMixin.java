@@ -22,13 +22,13 @@ import static net.hulan.ksd.client.KSDClientData.DATA_CACHE;
 @Mixin(value = PacketTrainDataGuiClient.class)
 public class PacketTrainDataGuiClientMixin {
 
-    @Inject(method = "sendUpdate", at = @At("TAIL"))
+    @Inject(method = "sendUpdate", remap = false, at = @At("TAIL"))
     private static void sendUpdate(ResourceLocation packetId, FriendlyByteBuf packet, CallbackInfo ci) {
         DATA_CACHE.sync();
         DATA_CACHE.refreshDynamicResources();
     }
 
-    @Inject(method = "receiveChunk", at = @At("TAIL"))
+    @Inject(method = "receiveChunk", remap = false, at = @At("TAIL"))
     private static void receiveChunk(Minecraft minecraftClient, FriendlyByteBuf packet, CallbackInfo ci) {
         try {
             DATA_CACHE.sync();
@@ -42,7 +42,7 @@ public class PacketTrainDataGuiClientMixin {
         }
     }
 
-    @Inject(method = "receiveUpdateOrDeleteS2C", at = @At("TAIL"))
+    @Inject(method = "receiveUpdateOrDeleteS2C", remap = false, at = @At("TAIL"))
     private static <T extends NameColorDataBase> void receiveUpdateOrDeleteS2C(Minecraft minecraftClient, FriendlyByteBuf packet, Set<T> dataSet, Map<Long, T> cacheMap, BiFunction<Long, TransportMode, T> createDataWithId, boolean isDelete, CallbackInfo ci) {
         KSDClientData.DATA_CACHE.sync();
         KSDClientData.DATA_CACHE.refreshDynamicResources();

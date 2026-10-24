@@ -1,12 +1,11 @@
 package net.hulan.ksd.sreen;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mtr.mappings.ButtonMapper;
 import mtr.mappings.UtilitiesClient;
 import net.hulan.ksd.utils.RenderUtilities;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -47,19 +46,21 @@ public class TextureButton extends ButtonMapper {
     }
 
     @Override
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         final int widgetX = UtilitiesClient.getWidgetX(this);
         final int widgetY = UtilitiesClient.getWidgetY(this);
         final int widgetWidth = getWidth();
         final int widgetHeight = getHeight();
+        // Flush any batched screen background before drawing the texture through raw vertex buffers.
+        guiGraphics.flush();
         if (hasTexture()) {
-            RenderUtilities.getInstance().drawTexture(matrices, texture, widgetX, widgetY, widgetWidth, widgetHeight);
+            RenderUtilities.getInstance().drawTexture(guiGraphics.pose(), texture, widgetX, widgetY, widgetWidth, widgetHeight);
         } else {
-            drawMissingTexture(matrices);
+            drawMissingTexture(guiGraphics);
         }
-        drawMessage(matrices);
+        drawMessage(guiGraphics);
         if (isMouseOver(mouseX, mouseY)) {
-            drawHoverBorder(matrices);
+            drawHoverBorder(guiGraphics);
         }
     }
 
@@ -71,15 +72,15 @@ public class TextureButton extends ButtonMapper {
         }
     }
 
-    private void drawMissingTexture(PoseStack matrices) {
+    private void drawMissingTexture(GuiGraphics guiGraphics) {
         final int widgetX = UtilitiesClient.getWidgetX(this);
         final int widgetY = UtilitiesClient.getWidgetY(this);
         final int widgetWidth = getWidth();
         final int widgetHeight = getHeight();
-        Gui.fill(matrices, widgetX, widgetY, widgetX + widgetWidth, widgetY + widgetHeight, MISSING_TEXTURE_BACKGROUND);
+        guiGraphics.fill(widgetX, widgetY, widgetX + widgetWidth, widgetY + widgetHeight, MISSING_TEXTURE_BACKGROUND);
     }
 
-    private void drawMessage(PoseStack matrices) {
+    private void drawMessage(GuiGraphics guiGraphics) {
         final String message = getMessage().getString();
         if (message.isEmpty() || getWidth() <= TEXT_PADDING * 2 || getHeight() <= TEXT_PADDING * 2) {
             return;
@@ -100,15 +101,16 @@ public class TextureButton extends ButtonMapper {
                 (float) (getHeight() - TEXT_PADDING * 2) / textHeight));
         final int widgetX = UtilitiesClient.getWidgetX(this);
         final int widgetY = UtilitiesClient.getWidgetY(this);
-        matrices.pushPose();
-        matrices.translate(widgetX + getWidth() / 2.0F, widgetY + getHeight() / 2.0F, 0);
-        matrices.scale(scale, scale, 1.0F);
+        guiGraphics.pose().pushPose();
+        guiGraphics.pose().translate(widgetX + getWidth() / 2.0F, widgetY + getHeight() / 2.0F, 0);
+        guiGraphics.pose().scale(scale, scale, 1.0F);
         for (int i = 0; i < lines.size(); i++) {
             final String line = lines.get(i);
-            font.draw(matrices, line, -font.width(line) / 2.0F,
-                    -textHeight / 2.0F + i * LINE_HEIGHT, 0xFFFFFFFF);
+            // 1.20.1 moved Font#draw to GuiGraphics; the pose set above carries the button centering transform.
+            guiGraphics.drawString(font, line, -font.width(line) / 2.0F,
+                    -textHeight / 2.0F + i * LINE_HEIGHT, 0xFFFFFFFF, true);
         }
-        matrices.popPose();
+        guiGraphics.pose().popPose();
     }
 
     private static List<String> wrapMessage(String message, Font font, int maxWidth) {
@@ -161,14 +163,14 @@ public class TextureButton extends ButtonMapper {
         line.append(token);
     }
 
-    private void drawHoverBorder(PoseStack matrices) {
+    private void drawHoverBorder(GuiGraphics guiGraphics) {
         final int widgetX = UtilitiesClient.getWidgetX(this);
         final int widgetY = UtilitiesClient.getWidgetY(this);
         final int right = widgetX + getWidth();
         final int bottom = widgetY + getHeight();
-        Gui.fill(matrices, widgetX, widgetY, right, widgetY + HOVER_BORDER_WIDTH, HOVER_BORDER_COLOR);
-        Gui.fill(matrices, widgetX, bottom - HOVER_BORDER_WIDTH, right, bottom, HOVER_BORDER_COLOR);
-        Gui.fill(matrices, widgetX, widgetY + HOVER_BORDER_WIDTH, widgetX + HOVER_BORDER_WIDTH, bottom - HOVER_BORDER_WIDTH, HOVER_BORDER_COLOR);
-        Gui.fill(matrices, right - HOVER_BORDER_WIDTH, widgetY + HOVER_BORDER_WIDTH, right, bottom - HOVER_BORDER_WIDTH, HOVER_BORDER_COLOR);
+        guiGraphics.fill(widgetX, widgetY, right, widgetY + HOVER_BORDER_WIDTH, HOVER_BORDER_COLOR);
+        guiGraphics.fill(widgetX, bottom - HOVER_BORDER_WIDTH, right, bottom, HOVER_BORDER_COLOR);
+        guiGraphics.fill(widgetX, widgetY + HOVER_BORDER_WIDTH, widgetX + HOVER_BORDER_WIDTH, bottom - HOVER_BORDER_WIDTH, HOVER_BORDER_COLOR);
+        guiGraphics.fill(right - HOVER_BORDER_WIDTH, widgetY + HOVER_BORDER_WIDTH, right, bottom - HOVER_BORDER_WIDTH, HOVER_BORDER_COLOR);
     }
 }

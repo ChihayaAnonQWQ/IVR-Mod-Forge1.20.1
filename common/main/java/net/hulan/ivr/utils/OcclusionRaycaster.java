@@ -67,7 +67,7 @@ public final class OcclusionRaycaster {
             }
             // noOcclusion() 只影响相邻方块面合并，并不表示视觉透明；许多装饰墙
             // 正是这种状态。只根据材质不透明性与实际 VoxelShape 射线命中判断。
-            if (!state.getMaterial().isSolidBlocking() && state.getLightBlock(world, currentPos) < 15) {
+            if (!state.isSolidRender(world, currentPos) && state.getLightBlock(world, currentPos) < 15) {
                 continue; // 不满足不透明条件时继续检查射线后方。
             }
             VoxelShape shape = state.getShape(world, currentPos, CollisionContext.empty()); // 获取方块的实际碰撞形状。

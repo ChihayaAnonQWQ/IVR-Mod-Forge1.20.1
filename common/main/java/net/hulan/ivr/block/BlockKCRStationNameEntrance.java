@@ -41,7 +41,7 @@ public class BlockKCRStationNameEntrance extends BlockKCRStationNameBase {
     @SuppressWarnings("deprecation")
     public boolean canSurvive(BlockState state, LevelReader world, BlockPos pos) {
         Direction facing = IBlock.getStatePropertySafe(state, FACING);
-        return world.getBlockState(pos.relative(facing)).getMaterial().isSolid();
+        return world.getBlockState(pos.relative(facing)).isSolid();
     }
 
     @Override

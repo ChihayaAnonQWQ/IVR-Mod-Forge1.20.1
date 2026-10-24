@@ -16,6 +16,7 @@ import net.hulan.ksd.utils.DataUtilities;
 import net.hulan.ksd.data.KSDStation;
 import net.hulan.ksd.packet.KSDPacket;
 import net.hulan.ksd.packet.KSDPacketClient;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
 
@@ -115,19 +116,19 @@ public class EditKSDStationScreen extends EditNameColorScreenBase<KSDStation> {
         exitDestinationList.setData(exitDestinations, false, false, true, true, false, true);
     }
 
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         try {
-            renderBackground(matrices);
-            renderTextFields(matrices);
-            vLine(matrices, width / 2, 50, height, Integer.MAX_VALUE);
-            exitParentList.render(matrices, font);
-            exitDestinationList.render(matrices, font);
-            drawCenteredString(matrices, font, stationZoneText, width / 8 * 7, 6, -1);
-            drawCenteredString(matrices, font, exitParentsText, width / 4, 56, -1);
+            renderBackground(guiGraphics);
+            renderTextFields(guiGraphics);
+            guiGraphics.vLine(width / 2, 50, height, Integer.MAX_VALUE);
+            exitParentList.render(guiGraphics, font);
+            exitDestinationList.render(guiGraphics, font);
+            guiGraphics.drawCenteredString(font, stationZoneText, width / 8 * 7, 6, -1);
+            guiGraphics.drawCenteredString(font, exitParentsText, width / 4, 56, -1);
             if (parentExists()) {
-                drawCenteredString(matrices, font, exitDestinationsText, 3 * width / 4, 56, -1);
+                guiGraphics.drawCenteredString(font, exitDestinationsText, 3 * width / 4, 56, -1);
             }
-            super.render(matrices, mouseX, mouseY, delta);
+            super.render(guiGraphics, mouseX, mouseY, delta);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -12,6 +12,7 @@ import net.hulan.ksd.data.OctopusSystem;
 import net.hulan.ksd.data.PaymentMethod;
 import net.hulan.ksd.packet.KSDPacketClient;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.MutableComponent;
@@ -68,13 +69,13 @@ public class PurchaseOctopusScreen extends PaymentScreen implements IGui {
     }
 
 
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-        super.render(matrices, mouseX, mouseY, delta);
-        drawCenteredString(matrices, Minecraft.getInstance().font, getBasePriceText(), width / 2, height / 2 - 120, 0xFFFFFF);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        super.render(guiGraphics, mouseX, mouseY, delta);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, getBasePriceText(), width / 2, height / 2 - 120, 0xFFFFFF);
         if (buttonAddValueNow.selected()) {
-            drawCenteredString(matrices, Minecraft.getInstance().font, getAddValueText(), width / 2, height / 2 - 56, ARGB_WHITE);
+            guiGraphics.drawCenteredString(Minecraft.getInstance().font, getAddValueText(), width / 2, height / 2 - 56, ARGB_WHITE);
         }
-        drawCenteredString(matrices, Minecraft.getInstance().font, getAmountText(), width / 2, height / 2 - 16, ARGB_WHITE);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, getAmountText(), width / 2, height / 2 - 16, ARGB_WHITE);
     }
 
     void countTotal() {

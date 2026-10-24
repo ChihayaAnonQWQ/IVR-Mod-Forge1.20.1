@@ -52,7 +52,7 @@ public abstract class TrainMixin {
     @Shadow(remap = false)
     protected boolean doorTarget;
 
-    @Redirect(method = "calculateCar", at = @At(value = "INVOKE", target = "Lmtr/data/Train;scanDoors(Lnet/minecraft/world/level/Level;DDDFFDI)Z", ordinal = 0))
+    @Redirect(method = "calculateCar", remap = false, at = @At(value = "INVOKE", target = "Lmtr/data/Train;scanDoors(Lnet/minecraft/world/level/Level;DDDFFDI)Z", ordinal = 0))
     private boolean scanLeftDoor(Train instance,
                                  Level world,
                                  double trainX,
@@ -65,7 +65,7 @@ public abstract class TrainMixin {
         return iVR$spanishCheck((TrainInvoker) instance, world, trainX, trainY, trainZ, checkYaw, pitch, halfSpacing, dwellTicks, KSDPlatform.DoorOpeningSide.LEFT);
     }
 
-    @Redirect(method = "calculateCar", at = @At(value = "INVOKE", target = "Lmtr/data/Train;scanDoors(Lnet/minecraft/world/level/Level;DDDFFDI)Z", ordinal = 1))
+    @Redirect(method = "calculateCar", remap = false, at = @At(value = "INVOKE", target = "Lmtr/data/Train;scanDoors(Lnet/minecraft/world/level/Level;DDDFFDI)Z", ordinal = 1))
     private boolean scanRightDoor(Train instance,
                                   Level world,
                                   double trainX,

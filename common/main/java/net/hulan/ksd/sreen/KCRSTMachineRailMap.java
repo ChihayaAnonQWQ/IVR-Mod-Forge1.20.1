@@ -10,7 +10,7 @@ import net.hulan.ksd.data.*;
 import net.hulan.ksd.utils.RailDataUtilities;
 import net.hulan.ksd.utils.RenderUtilities;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui; // 引入界面背景填充工具
+import net.minecraft.client.gui.GuiGraphics; // 引入界面背景填充工具
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -71,8 +71,11 @@ public class KCRSTMachineRailMap implements WidgetMapper, SelectableMapper, GuiE
         isLRT = ticketType.equals(SingleTicketSystem.TicketType.LRT); // 缓存轻铁线路图标记
     }
 
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-        Gui.fill(matrices, x, y, x + width, y + height, ARGB_WHITE); // 清除上一帧内容并填充白色背景
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        PoseStack matrices = guiGraphics.pose();
+        guiGraphics.fill(x, y, x + width, y + height, ARGB_WHITE); // 清除上一帧内容并填充白色背景
+        // Flush the batched background before drawing the map through raw vertex buffers.
+        guiGraphics.flush();
         buildRenderData();
         stationLabels.clear();
         stationLabels.addAll(buildStationLabels());

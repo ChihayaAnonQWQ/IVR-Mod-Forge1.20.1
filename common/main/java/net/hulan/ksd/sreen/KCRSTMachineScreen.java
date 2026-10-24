@@ -11,7 +11,7 @@ import net.hulan.ksd.data.KSDStation;
 import net.hulan.ksd.utils.RailDataUtilities;
 import net.hulan.ksd.utils.RenderUtilities;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -60,10 +60,10 @@ public class KCRSTMachineScreen extends ScreenMapper implements KSDGui {
         railMap.load();
     }
 
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-        renderMapComponent(matrices, mouseX, mouseY, delta);
-        renderHeader(matrices);
-        super.render(matrices, mouseX, mouseY, delta);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        renderMapComponent(guiGraphics, mouseX, mouseY, delta);
+        renderHeader(guiGraphics);
+        super.render(guiGraphics, mouseX, mouseY, delta);
     }
 
     public boolean isPauseScreen() {
@@ -123,18 +123,23 @@ public class KCRSTMachineScreen extends ScreenMapper implements KSDGui {
         }
     }
 
-    private void renderHeader(PoseStack matrices) {
-        Gui.fill(matrices, 0, 0, width, RMH_HEADER_HEIGHT, RGB_HEADER_BLUE | ARGB_BLACK);
+    private void renderHeader(GuiGraphics guiGraphics) {
+        PoseStack matrices = guiGraphics.pose();
+        guiGraphics.fill(0, 0, width, RMH_HEADER_HEIGHT, RGB_HEADER_BLUE | ARGB_BLACK);
+        // Flush the batched header fill before the raw texture/text drawing below.
+        guiGraphics.flush();
         RenderUtilities renderUtilities = RenderUtilities.getInstance();
         renderUtilities.drawTexture(matrices, new ResourceLocation("ivr", "textures/block/sign/rmh.png"), 0, 0, RMH_HEADER_HEIGHT, RMH_HEADER_HEIGHT);
         renderUtilities.drawText(matrices, RMH_CHI, RMH_HEADER_HEIGHT + RMH_PADDING, 10, RMH_CHI_WIDTH, RMH_CHI_HEIGHT, ARGB_WHITE);
         renderUtilities.drawText(matrices, RMH_ENG, 170, 25, RMH_ENG_WIDTH, RMH_ENG_HEIGHT, ARGB_WHITE);
     }
 
-    private void renderMapComponent(PoseStack matrices, int mouseX, int mouseY, float delta) {
-        Gui.fill(matrices, 0, RMH_HEADER_HEIGHT, width, height, ARGB_WHITE);
-        railMap.render(matrices, mouseX, mouseY, delta);
-        legend.render(matrices, mouseX, mouseY, delta);
+    private void renderMapComponent(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        guiGraphics.fill(0, RMH_HEADER_HEIGHT, width, height, ARGB_WHITE);
+        // Flush the batched map background before the map/legend draw through raw vertex buffers.
+        guiGraphics.flush();
+        railMap.render(guiGraphics, mouseX, mouseY, delta);
+        legend.render(guiGraphics, mouseX, mouseY, delta);
     }
 
     static {

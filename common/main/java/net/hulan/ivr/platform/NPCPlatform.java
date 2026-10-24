@@ -42,6 +42,9 @@ public abstract class NPCPlatform {
         if (version.equals("1.19.3") || version.equals("1.19.4")) {
             return "1_19_4";
         }
+        if (version.startsWith("1.20")) {
+            return "1_20_1";
+        }
         return "1_18_2";
     }
 

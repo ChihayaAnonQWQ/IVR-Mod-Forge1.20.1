@@ -11,6 +11,7 @@ import net.hulan.ksd.data.*;
 import net.hulan.ksd.packet.KSDPacketClient;
 import net.hulan.ksd.utils.RailDataUtilities;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Mth;
@@ -67,15 +68,15 @@ public class STProcessingScreen extends PaymentScreen implements IGui {
         }
     }
 
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-        super.render(matrices, mouseX, mouseY, delta);
-        drawCenteredString(matrices, Minecraft.getInstance().font, getCurrentText(), width / 2, height / 2 - 120, ARGB_WHITE);
-        drawCenteredString(matrices, Minecraft.getInstance().font, getDestinationText(), width / 2, height / 2 - 100, ARGB_WHITE);
-        drawCenteredString(matrices, Minecraft.getInstance().font, getFareText(), width / 2, height / 2 - 80, ARGB_WHITE);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        super.render(guiGraphics, mouseX, mouseY, delta);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, getCurrentText(), width / 2, height / 2 - 120, ARGB_WHITE);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, getDestinationText(), width / 2, height / 2 - 100, ARGB_WHITE);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, getFareText(), width / 2, height / 2 - 80, ARGB_WHITE);
         if (buttonFCAvailable.selected()) {
-            drawCenteredString(matrices, Minecraft.getInstance().font, getWarningMessage(), width / 2, height / 2 - 36, RGB_RED | ARGB_BLACK);
+            guiGraphics.drawCenteredString(Minecraft.getInstance().font, getWarningMessage(), width / 2, height / 2 - 36, RGB_RED | ARGB_BLACK);
         }
-        drawCenteredString(matrices, Minecraft.getInstance().font, getAmountText(), width / 2, height / 2 - 16, ARGB_WHITE);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, getAmountText(), width / 2, height / 2 - 16, ARGB_WHITE);
     }
 
     void countTotal() {

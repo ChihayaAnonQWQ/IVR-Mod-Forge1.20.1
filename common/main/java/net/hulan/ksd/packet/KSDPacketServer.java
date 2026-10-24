@@ -44,7 +44,7 @@ public class KSDPacketServer extends PacketTrainDataBase implements KSDPacket {
     public static void receiveNPCInteraction(MinecraftServer server, ServerPlayer player, FriendlyByteBuf packet) {
         final int entityId = packet.readVarInt();
         server.execute(() -> {
-            if (!(player.level.getEntity(entityId) instanceof NPC npc)
+            if (!(player.level().getEntity(entityId) instanceof NPC npc)
                     || npc.distanceToSqr(player) > 36.0D) {
                 return;
             }
@@ -67,7 +67,7 @@ public class KSDPacketServer extends PacketTrainDataBase implements KSDPacket {
     }
 
     public static void openTicketsScreenS2C(ServerPlayer player, BlockPos pos) {
-        int balance = TicketSystem.getPlayerScore(player.getLevel(), player, "mtr_balance").getScore();
+        int balance = TicketSystem.getPlayerScore(player.level(), player, "mtr_balance").getScore();
         FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
         packet.writeBlockPos(pos);
         packet.writeInt(balance);
@@ -75,7 +75,7 @@ public class KSDPacketServer extends PacketTrainDataBase implements KSDPacket {
     }
 
     public static void openSTMachineScreenS2C(ServerPlayer player, SingleTicketSystem.TicketType ticketType, BlockPos pos) {
-        int balance = TicketSystem.getPlayerScore(player.getLevel(), player, "mtr_balance").getScore();
+        int balance = TicketSystem.getPlayerScore(player.level(), player, "mtr_balance").getScore();
         FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
         packet.writeUtf(ticketType.name());
         packet.writeBlockPos(pos);
@@ -84,7 +84,7 @@ public class KSDPacketServer extends PacketTrainDataBase implements KSDPacket {
     }
 
     public static void openFareAdjustmentsScreenS2C(ServerPlayer player, BlockPos pos) {
-        int balance = TicketSystem.getPlayerScore(player.getLevel(), player, "mtr_balance").getScore();
+        int balance = TicketSystem.getPlayerScore(player.level(), player, "mtr_balance").getScore();
         FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
         packet.writeBlockPos(pos);
         packet.writeInt(balance);
@@ -92,14 +92,14 @@ public class KSDPacketServer extends PacketTrainDataBase implements KSDPacket {
     }
 
     public static void openPurchaseOctopusScreenS2C(ServerPlayer player) {
-        int balance = TicketSystem.getPlayerScore(player.getLevel(), player, "mtr_balance").getScore();
+        int balance = TicketSystem.getPlayerScore(player.level(), player, "mtr_balance").getScore();
         FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
         packet.writeInt(balance);
         Registry.sendToPlayer(player, KSD_PACKET_OPEN_APPLY_OCTOPUS_SCREEN, packet);
     }
 
     public static void openAddValueMachine(ServerPlayer player, BlockPos pos) {
-        int balance = TicketSystem.getPlayerScore(player.getLevel(), player, "mtr_balance").getScore();
+        int balance = TicketSystem.getPlayerScore(player.level(), player, "mtr_balance").getScore();
         FriendlyByteBuf packet = new FriendlyByteBuf(Unpooled.buffer());
         packet.writeBlockPos(pos);
         packet.writeInt(balance);
@@ -144,7 +144,7 @@ public class KSDPacketServer extends PacketTrainDataBase implements KSDPacket {
                                                                               BiFunction<Long, TransportMode, T> createDataWithId,
                                                                               boolean isDelete) {
         if (!KSDRailwayData.hasNoPermission(player)) {
-            Level world = player.level;
+            Level world = player.level();
             KSDRailwayData railwayData = KSDRailwayData.getInstance(world);
             if (railwayData != null) {
                 PacketCallback packetCallback = (updatePacket, fullPacket) -> {
@@ -186,7 +186,7 @@ public class KSDPacketServer extends PacketTrainDataBase implements KSDPacket {
         boolean fcAvailable = packet.readBoolean();
         BlockPos storeBlockPos = packet.readBlockPos();
         minecraftServer.execute(() -> {
-            Level world = player.level;
+            Level world = player.level();
             List<ItemStack> items = new ArrayList<>(amount);
             for (int i = 1; i <= amount; i++) {
                 items.add(SingleTicketSystem.purchaseSingleTicketItem(fare, ticketType, isConcessionary, fcAvailable));
@@ -221,7 +221,7 @@ public class KSDPacketServer extends PacketTrainDataBase implements KSDPacket {
     }
 
     public static void receiveAdjustFCFareC2S(MinecraftServer minecraftServer, ServerPlayer player) {
-        minecraftServer.execute(() -> FirstClassValidationSystem.setAdjusted(player.level, player));
+        minecraftServer.execute(() -> FirstClassValidationSystem.setAdjusted(player.level(), player));
     }
 
     public static void receivePayment(MinecraftServer minecraftServer, ServerPlayer player, FriendlyByteBuf packet) {
@@ -230,7 +230,7 @@ public class KSDPacketServer extends PacketTrainDataBase implements KSDPacket {
         int actualPayment = packet.readInt();
         BlockPos storeBlockPos = packet.readBlockPos();
         minecraftServer.execute(() -> {
-            Level world = player.level;
+            Level world = player.level();
             Inventory inventory = Utilities.getInventory(player);
             switch (paymentMethod) {
                 case EMERALDS -> {
@@ -258,7 +258,7 @@ public class KSDPacketServer extends PacketTrainDataBase implements KSDPacket {
         boolean isConcessionary = packet.readBoolean();
         int amount = packet.readInt();
         minecraftServer.execute(() -> {
-            Level world = player.level;
+            Level world = player.level();
             KSDRailwayData railwayData = KSDRailwayData.getInstance(world);
             Inventory inventory = Utilities.getInventory(player);
             if (railwayData != null) {
@@ -274,7 +274,7 @@ public class KSDPacketServer extends PacketTrainDataBase implements KSDPacket {
         int addValue = packet.readInt();
         Octopus.History.Source source = EnumHelper.valueOf(Octopus.History.Source.NONE, packet.readUtf());
         minecraftServer.execute(() -> {
-            Level world = player.level;
+            Level world = player.level();
             KSDRailwayData railwayData = KSDRailwayData.getInstance(world);
             if (railwayData != null) {
                 OctopusSystem.addValue(uuid, addValue, source, railwayData.jsonDataManager, Utilities.getInventory(player));

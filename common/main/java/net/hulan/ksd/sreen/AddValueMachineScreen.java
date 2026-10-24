@@ -9,6 +9,7 @@ import net.hulan.ksd.data.Octopus;
 import net.hulan.ksd.data.PaymentMethod;
 import net.hulan.ksd.packet.KSDPacketClient;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.MutableComponent;
@@ -44,11 +45,11 @@ public class AddValueMachineScreen extends PaymentScreen {
         textFieldAddValue.tick();
     }
 
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
-        super.render(matrices, mouseX, mouseY, delta);
-        drawCenteredString(matrices, Minecraft.getInstance().font, getBalanceText(), width / 2, height / 2 - 60, 0xFFFFFFFF);
-        drawCenteredString(matrices, Minecraft.getInstance().font, getAddValueText(), width / 2, height / 2 - 40, 0xFFFFFFFF);
-        drawCenteredString(matrices, Minecraft.getInstance().font, getTotalBalanceText(), width / 2, height / 2 + 2, 0xFFFFFFFF);
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
+        super.render(guiGraphics, mouseX, mouseY, delta);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, getBalanceText(), width / 2, height / 2 - 60, 0xFFFFFFFF);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, getAddValueText(), width / 2, height / 2 - 40, 0xFFFFFFFF);
+        guiGraphics.drawCenteredString(Minecraft.getInstance().font, getTotalBalanceText(), width / 2, height / 2 + 2, 0xFFFFFFFF);
     }
 
     void countTotal() {

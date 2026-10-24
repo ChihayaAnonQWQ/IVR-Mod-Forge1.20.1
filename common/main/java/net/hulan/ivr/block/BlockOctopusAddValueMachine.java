@@ -123,7 +123,7 @@ public class BlockOctopusAddValueMachine extends BlockDirectionalMapper implemen
                     continue;
                 }
                 BlockPos partPos = leftBottom.relative(widthDirection, side == Side.RIGHT ? 1 : 0).above(height.offset);
-                if (!world.getBlockState(partPos).getMaterial().isReplaceable()) {
+                if (!world.getBlockState(partPos).canBeReplaced()) {
                     return false;
                 }
             }

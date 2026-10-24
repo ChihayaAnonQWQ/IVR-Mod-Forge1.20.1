@@ -3,7 +3,7 @@
 	"parent": "block/block",
 	"textures": {
 		"2": "ivr:block/kcr_station_name_texture",
-		"particle": "ivr:block/kcr_station_name_tall"
+		"particle": "ivr:block/kcr_station_name_tall_overlay"
 	},
 	"elements": [
 		{

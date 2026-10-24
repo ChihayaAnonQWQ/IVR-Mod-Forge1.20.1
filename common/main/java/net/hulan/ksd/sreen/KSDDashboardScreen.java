@@ -17,7 +17,7 @@ import net.hulan.ksd.packet.KSDPacket;
 import net.hulan.ksd.packet.KSDPacketClient;
 import net.hulan.ksd.utils.DataUtilities;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.util.Tuple;
 
@@ -125,16 +125,18 @@ public class KSDDashboardScreen extends ScreenMapper implements IGui, IPacket {
         selectMapType(KSDWidgetMap.MapType.X_Z);
     }
 
-    public void render(PoseStack matrices, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float delta) {
         try {
-            renderBackground(matrices);
-            widgetMap.render(matrices, mouseX, mouseY, delta);
-            matrices.pushPose();
-            matrices.translate(0.0F, 0.0F, 500.0F);
-            Gui.fill(matrices, 0, 0, 144, height, ARGB_BACKGROUND);
-            dashboardList.render(matrices, font);
-            super.render(matrices, mouseX, mouseY, delta);
-            matrices.popPose();
+            renderBackground(guiGraphics);
+            // Flush the batched background before the widget map draws through raw vertex buffers.
+            guiGraphics.flush();
+            widgetMap.render(guiGraphics, mouseX, mouseY, delta);
+            guiGraphics.pose().pushPose();
+            guiGraphics.pose().translate(0.0F, 0.0F, 500.0F);
+            guiGraphics.fill(0, 0, 144, height, ARGB_BACKGROUND);
+            dashboardList.render(guiGraphics, font);
+            super.render(guiGraphics, mouseX, mouseY, delta);
+            guiGraphics.pose().popPose();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -7,7 +7,7 @@ import mtr.item.ItemBlockEnchanted;
 import mtr.item.ItemWithCreativeTabBase;
 import mtr.mappings.BlockEntityMapper;
 import mtr.mappings.DeferredRegisterHolder;
-import mtr.mappings.ForgeUtilities;
+import mtr.forge.mappings.ForgeUtilities;
 import mtr.mappings.RegistryUtilities;
 import net.hulan.ivr.item.ItemNPCSpawnEgg;
 import net.minecraft.world.item.BlockItem;
