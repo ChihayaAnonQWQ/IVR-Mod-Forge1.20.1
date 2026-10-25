@@ -4,7 +4,10 @@ import mtr.client.ClientData;
 import mtr.data.*;
 import net.hulan.ksd.client.KSDClientData;
 import net.hulan.ksd.data.KSDRailwayData;
+import net.hulan.ksd.utils.KSDLoadState;
 import net.minecraft.core.BlockPos;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,11 +26,22 @@ public class DataCacheMixin {
 
     @Inject(method = "mapSavedRailIdToStation", at = @At(value = "HEAD"), cancellable = true, remap = false)
     private static <U extends SavedRailBase, V extends AreaBase> void areaIdToSavedRails(Map<Long, V> map, Set<U> savedRails, Set<V> areas, CallbackInfo ci) {
+        // MTR calls this from RailwayData.load() before the RailwayData instance is
+        // registered in the level's DimensionDataStorage. Calling getInstance() here
+        // re-enters load() and hangs the server (official MTR 3.2.2 and Yomi 3.6.x).
+        // Skip the KSD-specific mapping for that pass and let MTR do its vanilla
+        // mapping; RailwayDataMixin re-runs sync() once the instance is registered.
+        // ClientData is client-only in newer MTR forks (it references LocalPlayer), so
+        // only touch it on the client dist.
+        final boolean clientSide = FMLEnvironment.dist == Dist.CLIENT && areas == ClientData.STATIONS;
+        if (!clientSide && KSDLoadState.isRailwayDataLoading()) {
+            return;
+        }
         map.clear();
         savedRails.forEach((savedRail) -> {
             BlockPos pos = savedRail.getMidPos();
             if (savedRail instanceof Platform) {
-                if (areas == ClientData.STATIONS) {
+                if (clientSide) {
                     KSDClientData.STATIONS.forEach(station -> {
                         for(V area : areas) {
                             if (Objects.equals(station.id, area.id) && station.isTransportMode(savedRail.transportMode) && station.inArea(pos)) {
