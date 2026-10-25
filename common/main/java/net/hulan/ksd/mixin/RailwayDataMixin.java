@@ -21,6 +21,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -79,14 +80,27 @@ public class RailwayDataMixin {
         }));
     }
 
+    @Unique
+    private static Station ivr$toMtrStation(KSDStation station) {
+        // Never hide an MTR station from other addons (Shanghai/Tianjin sign GUIs call
+        // this method). If KSD has no copy, or its copy has not received a name yet,
+        // return null so the original MTR lookup runs instead.
+        if (station == null || station.name == null || station.name.isEmpty()) {
+            return null;
+        }
+        return station.toMTRStation();
+    }
+
     @Inject(method = "getStation",
             remap = false,
             at = @At(value = "HEAD"),
             cancellable = true)
     private static void getStation(Set<Station> stations, DataCache dataCache, BlockPos pos, CallbackInfoReturnable<Station> cir) {
         if (stations == ClientData.STATIONS) {
-            KSDStation station = KSDRailwayData.getStation(KSDClientData.STATIONS, pos);
-            cir.setReturnValue(station != null ? station.toMTRStation() : null);
+            Station mtrStation = ivr$toMtrStation(KSDRailwayData.getStation(KSDClientData.STATIONS, pos));
+            if (mtrStation != null) {
+                cir.setReturnValue(mtrStation);
+            }
         } else {
             RailwayData mtrOverworld = overworld == null ? null : RailwayData.getInstance(overworld);
             KSDRailwayData ksdOverworld = overworld == null ? null : KSDRailwayData.getInstance(overworld);
@@ -95,14 +109,20 @@ public class RailwayDataMixin {
             RailwayData mtrTheEnd = the_end == null ? null : RailwayData.getInstance(the_end);
             KSDRailwayData ksdTheEnd = the_end == null ? null : KSDRailwayData.getInstance(the_end);
             if (ksdOverworld != null && mtrOverworld != null && stations == mtrOverworld.stations) {
-                KSDStation station = KSDRailwayData.getStation(ksdOverworld.stations, pos);
-                cir.setReturnValue(station != null ? station.toMTRStation() : null);
+                Station mtrStation = ivr$toMtrStation(KSDRailwayData.getStation(ksdOverworld.stations, pos));
+                if (mtrStation != null) {
+                    cir.setReturnValue(mtrStation);
+                }
             } else if (ksdTheNether != null && mtrTheNether != null && stations == mtrTheNether.stations) {
-                KSDStation station = KSDRailwayData.getStation(ksdTheNether.stations, pos);
-                cir.setReturnValue(station != null ? station.toMTRStation() : null);
+                Station mtrStation = ivr$toMtrStation(KSDRailwayData.getStation(ksdTheNether.stations, pos));
+                if (mtrStation != null) {
+                    cir.setReturnValue(mtrStation);
+                }
             } else if (ksdTheEnd != null && mtrTheEnd != null && stations == mtrTheEnd.stations) {
-                KSDStation station = KSDRailwayData.getStation(ksdTheEnd.stations, pos);
-                cir.setReturnValue(station != null ? station.toMTRStation() : null);
+                Station mtrStation = ivr$toMtrStation(KSDRailwayData.getStation(ksdTheEnd.stations, pos));
+                if (mtrStation != null) {
+                    cir.setReturnValue(mtrStation);
+                }
             }
         }
     }

@@ -35,18 +35,28 @@ public class ClientCacheMixin {
         Map<Long, V> savedRailMap = new HashMap<>();
         savedRails.forEach((savedRail) -> {
             BlockPos pos = savedRail.getMidPos();
-            if (savedRail instanceof Platform) {
-                if (ClientData.STATIONS.contains((Station) area)) {
-                    KSDClientData.STATIONS.forEach(station -> {
-                        if (Objects.equals(station.id, area.id) && station.isTransportMode(savedRail.transportMode) && station.inArea(pos)) {
-                            savedRailMap.put(savedRail.id, savedRail);
-                        }
-                    });
-                }
-            } else {
-                if (area.isTransportMode(savedRail.transportMode) && area.inArea(pos.getX(), pos.getZ())) {
+            if (savedRail instanceof Platform && ClientData.STATIONS.contains(area)) {
+                // KSD stations keep the expanded Y range, so prefer the KSD area match.
+                boolean[] matchedKsdStation = {false};
+                KSDClientData.STATIONS.forEach(station -> {
+                    if (Objects.equals(station.id, area.id)
+                            && station.isTransportMode(savedRail.transportMode)
+                            && station.inArea(pos)) {
+                        matchedKsdStation[0] = true;
+                    }
+                });
+                if (matchedKsdStation[0]) {
+                    savedRailMap.put(savedRail.id, savedRail);
+                } else if (area.isTransportMode(savedRail.transportMode)
+                        && area.inArea(pos.getX(), pos.getZ())) {
+                    // KSD data may not have reached the client yet (it is sent after the
+                    // MTR data). Fall back to MTR's own area test so other MTR addons
+                    // still see this platform's station instead of an empty mapping.
                     savedRailMap.put(savedRail.id, savedRail);
                 }
+            } else if (area.isTransportMode(savedRail.transportMode)
+                    && area.inArea(pos.getX(), pos.getZ())) {
+                savedRailMap.put(savedRail.id, savedRail);
             }
         });
         return savedRailMap;

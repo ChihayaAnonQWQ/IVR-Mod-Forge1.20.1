@@ -41,13 +41,6 @@ public class DashboardScreenMixin {
     @Shadow(remap = false)
     private Route editingRoute;
 
-    @Shadow(remap = false)
-    private int editingRoutePlatformIndex;
-
-    @Final
-    @Shadow(remap = false)
-    private WidgetBetterTextField textFieldCustomDestination;
-
     @Unique
     KSDStation editingKSDStation;
 
@@ -191,12 +184,26 @@ public class DashboardScreenMixin {
     }
 
     @Inject(method = "onDoneEditingRouteDestination",
-            at = @At(value = "INVOKE",
-                    target = "Lmtr/data/Route;setPlatformIds(Ljava/util/function/Consumer;)V",
-                    shift = At.Shift.AFTER),
-            remap = false)
+            at = @At("RETURN"),
+            remap = false,
+            require = 0)
     private void onDoneEditingRouteDestination(CallbackInfo ci) {
-        editingKSDRoute.platformIds.get(editingRoutePlatformIndex).customDestination = textFieldCustomDestination.getValue();
-        editingKSDRoute.setPlatformIds((packet) -> KSDPacketClient.sendUpdate(KSDPacket.KSD_PACKET_UPDATE_ROUTE, packet));
+        // MTR 3.6.x removed this screen/method together with the custom-destination
+        // field. On older MTR builds the fields still exist; read them reflectively so
+        // the same class does not fail to apply on 3.6.x.
+        try {
+            java.lang.reflect.Field indexField = DashboardScreen.class.getDeclaredField("editingRoutePlatformIndex");
+            java.lang.reflect.Field textField = DashboardScreen.class.getDeclaredField("textFieldCustomDestination");
+            indexField.setAccessible(true);
+            textField.setAccessible(true);
+            int index = indexField.getInt(this);
+            Object field = textField.get(this);
+            if (index >= 0 && index < editingKSDRoute.platformIds.size() && field instanceof WidgetBetterTextField widget) {
+                editingKSDRoute.platformIds.get(index).customDestination = widget.getValue();
+                editingKSDRoute.setPlatformIds((packet) -> KSDPacketClient.sendUpdate(KSDPacket.KSD_PACKET_UPDATE_ROUTE, packet));
+            }
+        } catch (ReflectiveOperationException ignored) {
+            // Field/method absent on this MTR version: nothing to mirror.
+        }
     }
 }
