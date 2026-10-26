@@ -1,29 +1,60 @@
-######################### # IVR
+# IVR — Minecraft 1.20.1 / Forge / MTR 3 port
 
-> **Minecraft 1.20.1 / Forge / MTR 3 port:** this fork adds a standalone
-> ForgeGradle build in [`forge-1.20.1/`](forge-1.20.1/) and publishes the ported
-> jar on the [Releases](../../releases) page. See
-> [`PORT-README.md`](PORT-README.md) for requirements, build instructions and
-> the list of 1.20.1 fixes. The original upstream description follows below.
+This branch is a port of [IVR](https://github.com/Hulan1234/IVR-Mod) to
+**Minecraft 1.20.1 + Forge 47.x + Minecraft Transit Railway 3**.
 
-## 簡介
+The upstream project targets Minecraft 1.16.5–1.19.4 (Fabric + Forge, MTR 3.2.2).
+This branch keeps the shared `common/` and `forge/` sources, ports the 1.19.4 API
+calls to 1.20.1, and adds a standalone ForgeGradle project in `forge-1.20.1/`.
 
-### IVR模组是Minecraft Transit Railway（MTR）模组的附属模组，它融合了KCR Modern Sign Pack、KCR Classical Sign Pack和Extension Pack里面的物品和方块，比如九铁现代指示牌、九铁经典指示牌、九铁月台幕门和九铁站名等等
+## Download
 
-### 但是它不只有这些，它還有4個獨特的功能：
+See the [Releases](../../releases) page. The current build is
+`IVR-1.2-pre-release-r6-1.20.1-forge-mtr3.jar` (all-in-one JarJar build, includes
+MixinExtras 0.5.5).
 
-#### 1.三維車站
+Requirements:
 
-允許玩家可以設定車站範圍高度，避免不同車站重疊時在不同站名時，車站設施錯誤顯示車站資訊等內容。
+| Dependency | Version |
+| --- | --- |
+| Minecraft | 1.20.1 |
+| Forge | 47.x (tested 47.4.0 / 47.4.10 / 47.4.15) |
+| Minecraft Transit Railway | MTR 3: official `1.20.1-3.2.2-hotfix-2` or Yomi's `1.20.1-3.6.3` |
+| Architectury API | 9.2.14+forge |
 
-#### 2.西班牙月台
+MTR 4 is not supported (the dependency range rejects it). Install the jar on both
+client and server; back up worlds before installing MTR addons.
 
-當列車停站且左右兩側皆為月台時，可以依照次序打開車門，模彷現實車站的人流管制。
+## Build
 
-#### 3.更真實的車票收費系統
+```bash
+cd forge-1.20.1
+./gradlew build --no-daemon
+# jar: build/libs/IVR-FORGE-mc1.20.1-mtr3-<version>-all.jar
+```
 
-彷照現實的車站系統，入閘前必須手持單程票及智能卡，單程票可以從售票機購入。
+Java 17 toolchain is required (Gradle can run on JDK 21). The project pulls MTR
+from the Modrinth maven and MixinExtras from Maven Central.
 
-#### 4.頭等列車服務系統
+## Port fixes included
 
-彷照現實的車站系統，增加更高級的列車服務，收費會比普通車程貴一倍或以上。
+- 1.19.4 → 1.20.1 API migration (GuiGraphics screens, block state methods,
+  `level()`, item tag helpers, font providers, models/textures).
+- MTR 3.2.2 Forge package moves (`mtr.forge.mappings.ForgeUtilities`), PSD/APG
+  door rendering without `TEMP`, refmap for MTR's overrides of vanilla methods.
+- Infinite `RailwayData.load → DataCache.sync → getInstance → load` recursion on
+  world load (singleplayer hang): thread-local load guard plus a deferred
+  `dataCache.sync()` after the instance is registered.
+- MTR 3.6.x compatibility: `DashboardScreen` fields/method removed in 3.6.x are
+  read reflectively/optionally; `removeSavedRailS2C` hooks no longer depend on
+  compiler-generated lambda names.
+- Other MTR addons (Shanghai/Tianjin sign GUIs, YJCM, PIDS) can read station data:
+  `RailwayData.getStation` no longer returns null/unnamed KSD copies when the KSD
+  client mirror is empty or late; `ClientCache` falls back to MTR's mapping.
+- IVR itself can read KSD stations: `KSDStation.fromMTRStation` handles MTR
+  stations with null corners instead of aborting the whole sync with an NPE, and
+  the initial KSD snapshot is retried while MTR data is still loading.
+
+## License
+
+MIT, following upstream IVR. See `LICENSE`.
