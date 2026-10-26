@@ -10,8 +10,15 @@ calls to 1.20.1, and adds a standalone ForgeGradle project in `forge-1.20.1/`.
 ## Download
 
 See the [Releases](../../releases) page. The current build is
-`IVR-1.2-pre-release-r9-1.20.1-forge-mtr3.jar` (all-in-one JarJar build, includes
+`IVR-1.2-pre-release-r12-1.20.1-forge-mtr3.jar` (all-in-one JarJar build, includes
 MixinExtras 0.5.5).
+
+For Fabric 1.20.1 + MTR 3.2.2 there is a separate build on the
+`port/fabric-1.20.1-mtr3` branch:
+`IVR-FABRIC-1.20.1-1.2-pre-release-r12.jar`. It needs Fabric API `0.92.x` and
+MTR Fabric `1.20-3.2.2-hotfix-1`, and does **not** need Architectury API. MTR3
+has no Fabric build newer than 3.2.2; the Fabric jar does not work with Forge
+3.6.3 servers.
 
 Requirements:
 
