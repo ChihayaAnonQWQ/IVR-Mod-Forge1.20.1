@@ -39,15 +39,35 @@ public class BlockTicketProcessorMixin extends BlockDirectionalDoubleBlockBase {
     }
 
     @Inject(method = "use", at = @At("HEAD"), cancellable = true)
-    private void use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand, BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
-        if (!world.isClientSide && IBlock.getStatePropertySafe(state, HALF) == DoubleBlockHalf.UPPER) {
-            ItemStack itemInHand = player.getItemInHand(interactionHand);
-            if (itemInHand.getItem() instanceof ItemSingleTicket || itemInHand.getItem() instanceof ItemOctopus) {
-                TicketSystem.EnumTicketBarrierOpen canOpen = KCRTicketSystem.check(world, player, pos, itemInHand, canEnter, canExit, itemInHand.getItem() instanceof ItemOctopus);
-                world.setBlockAndUpdate(pos, state.setValue(LIGHTS, canOpen.isOpen() ? BlockTicketProcessor.EnumTicketProcessorLights.GREEN : BlockTicketProcessor.EnumTicketProcessorLights.RED));
-                Utilities.scheduleBlockTick(world, pos, this, 20);
-            }
+    private void use(BlockState state, Level world, BlockPos pos, Player player, InteractionHand interactionHand,
+                     BlockHitResult blockHitResult, CallbackInfoReturnable<InteractionResult> cir) {
+        if (world.isClientSide || IBlock.getStatePropertySafe(state, HALF) != DoubleBlockHalf.UPPER) {
+            return;
         }
+        ItemStack ticket = findTicket(player);
+        if (ticket.isEmpty()) {
+            // Not an IVR ticket: leave MTR's own ticket processor alone.
+            return;
+        }
+        TicketSystem.EnumTicketBarrierOpen canOpen = KCRTicketSystem.check(
+                world, player, pos, ticket, canEnter, canExit,
+                ticket.getItem() instanceof ItemOctopus);
+        world.setBlockAndUpdate(pos, state.setValue(LIGHTS,
+                canOpen.isOpen() ? BlockTicketProcessor.EnumTicketProcessorLights.GREEN
+                        : BlockTicketProcessor.EnumTicketProcessorLights.RED));
+        Utilities.scheduleBlockTick(world, pos, this, 20);
         cir.setReturnValue(InteractionResult.SUCCESS);
+    }
+
+    private static ItemStack findTicket(Player player) {
+        ItemStack mainHand = player.getMainHandItem();
+        if (mainHand.getItem() instanceof ItemSingleTicket || mainHand.getItem() instanceof ItemOctopus) {
+            return mainHand;
+        }
+        ItemStack offHand = player.getOffhandItem();
+        if (offHand.getItem() instanceof ItemSingleTicket || offHand.getItem() instanceof ItemOctopus) {
+            return offHand;
+        }
+        return ItemStack.EMPTY;
     }
 }

@@ -25,11 +25,7 @@ public class PlatformScreenMixin extends SavedRailScreenBase<Platform> {
         super((Platform) savedRailBase, transportMode, dashboardScreen, additionalTexts);
     }
 
-    @Inject(method = "onClose",
-            at = @At(value = "INVOKE",
-                    target = "Lmtr/data/Platform;setDwellTime(ILjava/util/function/Consumer;)V",
-                    shift = At.Shift.AFTER),
-            remap = false)
+    @Inject(method = "onClose", at = @At("RETURN"))
     private void onClose(CallbackInfo ci) {
         int minutes = this.sliderDwellTimeMin.getIntValue();
         float second = (float) this.sliderDwellTimeSec.getIntValue() / 2.0F;

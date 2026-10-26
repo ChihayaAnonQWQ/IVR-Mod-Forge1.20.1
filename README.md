@@ -10,7 +10,7 @@ calls to 1.20.1, and adds a standalone ForgeGradle project in `forge-1.20.1/`.
 ## Download
 
 See the [Releases](../../releases) page. The current build is
-`IVR-1.2-pre-release-r6-1.20.1-forge-mtr3.jar` (all-in-one JarJar build, includes
+`IVR-1.2-pre-release-r7-1.20.1-forge-mtr3.jar` (all-in-one JarJar build, includes
 MixinExtras 0.5.5).
 
 Requirements:
@@ -54,6 +54,11 @@ from the Modrinth maven and MixinExtras from Maven Central.
 - IVR itself can read KSD stations: `KSDStation.fromMTRStation` handles MTR
   stations with null corners instead of aborting the whole sync with an NPE, and
   the initial KSD snapshot is retried while MTR data is still loading.
+- MTR 3.6.x ticket barriers: `entityInside` is no longer cancelled for normal
+  tickets, so MTR and addon barriers (including Metropolis/Fare-Pro) keep working;
+  IVR only intercepts when the player holds an IVR/KSD ticket.
+- `PlatformScreen` mixin targets the production `onClose` mapping instead of
+  looking for a literal `onClose` (fixes the 3.6.x mixin apply failure).
 
 ## License
 
