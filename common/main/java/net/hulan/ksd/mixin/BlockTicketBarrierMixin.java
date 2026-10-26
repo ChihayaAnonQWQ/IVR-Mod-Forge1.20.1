@@ -5,9 +5,11 @@ import mtr.data.TicketSystem;
 import mtr.mappings.BlockDirectionalMapper;
 import mtr.mappings.Utilities;
 import net.hulan.ksd.data.KCRTicketSystem;
+import net.hulan.ksd.data.KSDRailwayData;
 import net.hulan.ksd.item.ItemOctopus;
 import net.hulan.ksd.item.ItemSingleTicket;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -19,10 +21,15 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 import static mtr.block.BlockTicketBarrier.OPEN;
 
@@ -32,6 +39,12 @@ public class BlockTicketBarrierMixin extends BlockDirectionalMapper {
     @Shadow(remap = false)
     @Final
     private boolean isEntrance;
+
+    /** Avoid running the KSD fare check on every entityInside tick while the player
+     *  is still standing in the barrier; that caused the chat spam and re-closed the
+     *  gate immediately after it opened. */
+    @Unique
+    private static final Map<UUID, Long> ivr$nextCheck = new HashMap<>();
 
     public BlockTicketBarrierMixin(Properties properties) {
         super(properties);
@@ -52,6 +65,28 @@ public class BlockTicketBarrierMixin extends BlockDirectionalMapper {
         if (ticket.isEmpty()) {
             return;
         }
+        // Entrance gates: once this ticket is already inside, do nothing. Exit gates:
+        // only act when the ticket has a valid entry. This is what stops the
+        // "already entered" chat spam while the player is standing in the gate.
+        final KSDRailwayData railwayData = KSDRailwayData.getInstance(world);
+        if (railwayData != null) {
+            final CompoundTag itemTag = ticket.getOrCreateTag();
+            final boolean entered = KCRTicketSystem.isEntered(itemTag, railwayData.stations,
+                    ticket.getItem() instanceof ItemOctopus);
+            if (isEntrance == entered) {
+                return;
+            }
+        }
+        // The gate is already open: leave it alone so the collision shape stays open
+        // while the player walks through.
+        if (state.getValue(OPEN).isOpen()) {
+            return;
+        }
+        final long now = world.getGameTime();
+        final Long next = ivr$nextCheck.get(player.getUUID());
+        if (next != null && now < next) {
+            return;
+        }
         TicketSystem.EnumTicketBarrierOpen canOpen = KCRTicketSystem.check(
                 world, player, pos, ticket, isEntrance, !isEntrance,
                 ticket.getItem() instanceof ItemOctopus);
@@ -59,6 +94,9 @@ public class BlockTicketBarrierMixin extends BlockDirectionalMapper {
         if (canOpen.isOpen() && !world.getBlockTicks().hasScheduledTick(pos, this)) {
             Utilities.scheduleBlockTick(world, pos, this, 40);
         }
+        // 40 ticks covers the open gate; a longer retry delay suppresses repeated
+        // "already entered"/"insufficient fare" messages while the player stays inside.
+        ivr$nextCheck.put(player.getUUID(), now + (canOpen.isOpen() ? 40 : 120));
         ci.cancel();
     }
 
