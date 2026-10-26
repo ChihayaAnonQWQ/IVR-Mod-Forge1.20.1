@@ -1,0 +1,6 @@
+.gradle/
+build/
+run/
+run-server/
+lib/*.jar
+*.log
