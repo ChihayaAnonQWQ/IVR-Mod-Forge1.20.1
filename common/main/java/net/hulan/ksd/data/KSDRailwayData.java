@@ -116,12 +116,13 @@ public class KSDRailwayData extends PersistentStateMapper {
         dataCache.sync();
     }
 
-    public void onPlayerJoin(ServerPlayer serverPlayer) {
+    public boolean onPlayerJoin(ServerPlayer serverPlayer) {
         // MTR may finish loading its RailwayData after this persistent state is created.
-        // Retry here so the first join does not receive an empty snapshot.
+        // Retry here so the first join does not receive an empty snapshot forever.
         syncFromMTR();
         dataCache.sync();
         KSDPacketServer.sendAllInChunks(serverPlayer, stations, platforms, routes);
+        return !stations.isEmpty() || !platforms.isEmpty() || !routes.isEmpty();
     }
 
     public static boolean hasNoPermission(ServerPlayer serverPlayer) {

@@ -31,8 +31,8 @@ public class KSDStation extends KSDAreaBase {
         KSDStation newStation = new KSDStation(id, transportMode);
         newStation.zone = mtrStation.zone;
         newStation.exits.putAll(mtrStation.exits);
-        newStation.corner1 = Tuples.fromTuple(mtrStation.corner1);
-        newStation.corner2 = Tuples.fromTuple(mtrStation.corner2);
+        newStation.corner1 = mtrStation.corner1 == null ? new Tuples<>(0, -64, 0) : Tuples.fromTuple(mtrStation.corner1);
+        newStation.corner2 = mtrStation.corner2 == null ? new Tuples<>(0, 319, 0) : Tuples.fromTuple(mtrStation.corner2);
         newStation.corner1.setY(-64);
         newStation.corner2.setY(319);
         newStation.name = mtrStation.name;

@@ -124,8 +124,20 @@ public class KSDMain implements KSDBlocks, KSDItems, KSDCreativeModTabs, KSDPack
             if (entry.getValue() <= 0) {
                 KSDRailwayData railwayData = KSDRailwayData.getInstance(player.level());
                 if (railwayData != null) {
-                    railwayData.onPlayerJoin(player);
+                    boolean synced = railwayData.onPlayerJoin(player);
+                    // Large saves can take several seconds before MTR's RailwayData is
+                    // ready. Sending an empty snapshot once would leave the KSD client
+                    // (and therefore IVR's own signs/dashboard) empty for the whole
+                    // session, while other addons read MTR's data normally. Retry for a
+                    // while until MTR data is available.
+                    int retries = pendingInitialSyncRetries.getOrDefault(entry.getKey(), 0);
+                    if (!synced && retries < 120) {
+                        pendingInitialSyncRetries.put(entry.getKey(), retries + 1);
+                        entry.setValue(10);
+                        return false;
+                    }
                 }
+                pendingInitialSyncRetries.remove(entry.getKey());
                 return true;
             }
             entry.setValue(entry.getValue() - 1);
@@ -136,6 +148,7 @@ public class KSDMain implements KSDBlocks, KSDItems, KSDCreativeModTabs, KSDPack
             if (ksdRailwayData != null) {
                 // Wait until the client has finished entering the world, then send one snapshot.
                 pendingInitialSync.put(player.getUUID(), 5);
+                pendingInitialSyncRetries.put(player.getUUID(), 0);
             }
         });
         mtr.Registry.registerServerStartingEvent(server -> {
@@ -149,4 +162,5 @@ public class KSDMain implements KSDBlocks, KSDItems, KSDCreativeModTabs, KSDPack
     public static ServerLevel the_nether;
     public static ServerLevel the_end;
     private static final Map<UUID, Integer> pendingInitialSync = new HashMap<>();
+    private static final Map<UUID, Integer> pendingInitialSyncRetries = new HashMap<>();
 }
