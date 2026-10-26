@@ -107,8 +107,8 @@ public class TextureButton extends ButtonMapper {
         for (int i = 0; i < lines.size(); i++) {
             final String line = lines.get(i);
             // 1.20.1 moved Font#draw to GuiGraphics; the pose set above carries the button centering transform.
-            guiGraphics.drawString(font, line, -font.width(line) / 2.0F,
-                    -textHeight / 2.0F + i * LINE_HEIGHT, 0xFFFFFFFF, true);
+            guiGraphics.drawString(font, line, Math.round(-font.width(line) / 2.0F),
+                    Math.round(-textHeight / 2.0F + i * LINE_HEIGHT), 0xFFFFFFFF, true);
         }
         guiGraphics.pose().popPose();
     }

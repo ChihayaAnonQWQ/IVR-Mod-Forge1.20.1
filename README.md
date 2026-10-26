@@ -10,7 +10,7 @@ calls to 1.20.1, and adds a standalone ForgeGradle project in `forge-1.20.1/`.
 ## Download
 
 See the [Releases](../../releases) page. The current build is
-`IVR-1.2-pre-release-r7-1.20.1-forge-mtr3.jar` (all-in-one JarJar build, includes
+`IVR-1.2-pre-release-r9-1.20.1-forge-mtr3.jar` (all-in-one JarJar build, includes
 MixinExtras 0.5.5).
 
 Requirements:
