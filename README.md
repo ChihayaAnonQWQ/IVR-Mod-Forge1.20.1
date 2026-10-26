@@ -1,5 +1,11 @@
 ######################### # IVR
 
+> **Minecraft 1.20.1 / Forge / MTR 3 port:** this fork adds a standalone
+> ForgeGradle build in [`forge-1.20.1/`](forge-1.20.1/) and publishes the ported
+> jar on the [Releases](../../releases) page. See
+> [`PORT-README.md`](PORT-README.md) for requirements, build instructions and
+> the list of 1.20.1 fixes. The original upstream description follows below.
+
 ## 簡介
 
 ### IVR模组是Minecraft Transit Railway（MTR）模组的附属模组，它融合了KCR Modern Sign Pack、KCR Classical Sign Pack和Extension Pack里面的物品和方块，比如九铁现代指示牌、九铁经典指示牌、九铁月台幕门和九铁站名等等
